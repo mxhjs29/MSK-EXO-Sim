@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "myo-sim"
+version = "0.2.2"
+requires-python = ">=3.11"
+dependencies = [
+    "mujoco>=3.4",
+    "numpy>=1.24",
+]
+
+[tool.setuptools.packages.find]
+include = ["myo_sim*"]
+
+[tool.setuptools.package-data]
+myo_sim = ["models/**/*"]

@@ -1,0 +1,93 @@
+.idea/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.cache/
+.env
+.env.*
+logs/
+None/
+dist/
+htmlcov/
+.pytest_cache/
+.coverage
+.DS_Store
+eval_recordings/
+record_all/
+_build/
+loco_mujoco/models/myo_model/
+wandb/
+ckpts/
+outputs/
+multirun/
+home/
+loco_mujoco/smpl/conf_paths.yaml
+/data/
+/dataset/
+/converted_datasets/
+MUJOCO_LOG.TXT
+*.vscode
+**/video2images.sh
+**/expert_traj.npz
+.venv/
+notebook/
+eval_results/
+tb_logs/
+tmp_orbax_ckpts_load/*
+tmp_orbax_ckpts/*
+checkpoints_*/
+checkpoints/
+**/.jax_cache/
+# Local/private model bundles. The maintained Assist packages are intentionally
+# versioned as editable source; private and licensed-only assets remain local.
+/models/*
+!/models/myo_sim/
+!/models/myo_sim/**
+!/models/assist_sim/
+!/models/assist_sim/**
+!/models/myoassist_terrains/
+!/models/myoassist_terrains/**
+/musclemimic/models/smpl/
+musclemimic/models/skeleton/tests/output/
+**.mp4
+# Selected README demonstrations are public media.
+!/assets/demos/*.mp4
+**.npz
+**.log
+**.pdf
+musclemimic/models/tests/output/
+
+# External references
+references/
+
+# Analysis outputs
+
+# Re-apply generated-file exclusions after the Assist source exceptions above.
+**/__pycache__/
+**/*.pyc
+**/*.egg-info/
+**.npz
+**.log
+
+# Local research projects stay private; SMPL assets have an explicit Git exception below.
+/local/*
+/datasets/
+/.venv*/
+/musclemimic/models/smpl
+/plan
+/configs/runtime/local*.yaml
+!tests/fixtures/**/*.npz
+/build/
+
+# Requested SMPL/MANO source and model assets are versioned explicitly.
+!/local/assets/
+/local/assets/*
+!/local/assets/smpl/
+!/local/assets/smpl/**
+!/musclemimic/models/smpl
+# Keep generated files out even within the model exception.
+/local/assets/smpl/**/__pycache__/
+/local/assets/smpl/**/*.pyc
+/local/assets/smpl/**/.DS_Store

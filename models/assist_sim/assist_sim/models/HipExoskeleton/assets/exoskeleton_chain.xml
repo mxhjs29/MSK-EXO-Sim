@@ -1,0 +1,32 @@
+<mujocoinclude model="MuscleMimicExoskeletonChain">
+    <!--
+        Kinematic and inertial conversion of ExoskeletonURDFmodel.urdf.
+        The visual and collision meshes are separate, mirroring the URDF tags.
+    -->
+    <body name="exo_torso">
+        <inertial pos="0.209727 -0.0253233 0.0806368" mass="3.456"
+                  fullinertia="0.0844668 0.108439 0.0461007 -3.47676e-06 5.26495e-05 -0.00845162"/>
+        <geom name="exo_torso_visual" class="exo_visual" mesh="exo_torso_mesh" material="exo_green"/>
+        <geom name="exo_torso_collision" class="exo_collision" mesh="exo_torso_mesh"/>
+
+        <body name="exo_right_leg" pos="-0.00595245 -0.147807 -0.0825556" euler="-0.15 0 0">
+            <inertial pos="-0.02912005 -0.0037811354695 -0.034212836698" mass="1.39397"
+                      fullinertia="0.0089399 0.00876079 0.00223467 0.000383612 0.00140254 -0.00120044"/>
+            <joint name="exo_right_hip_flexion" class="exo_hip" axis="-1 0 0" range="-0.2 2.0" ref="0"/>
+            <geom name="exo_right_leg_visual" class="exo_visual" mesh="exo_right_leg_mesh" material="exo_black"
+                  pos="0.00595245 0.147807000062 0.0825556000513"/>
+            <geom name="exo_right_leg_collision" class="exo_collision" mesh="exo_right_leg_mesh"
+                  pos="0.00595245 0.147807000062 0.0825556000513"/>
+        </body>
+
+        <body name="exo_left_leg" pos="0.425543 -0.147807 -0.0825556" euler="-0.15 0 0">
+            <inertial pos="0.025847 -0.00274416217852 -0.0319784622128" mass="1.39397"
+                      fullinertia="0.0103787 0.0100611 0.00258313 -0.000357087 -0.001288 -0.00125274"/>
+            <joint name="exo_left_hip_flexion" class="exo_hip" axis="-1 0 0" range="-0.2 2.0" ref="0"/>
+            <geom name="exo_left_leg_visual" class="exo_visual" mesh="exo_left_leg_mesh" material="exo_red"
+                  pos="-0.425543 0.147807000204 0.0825556002785"/>
+            <geom name="exo_left_leg_collision" class="exo_collision" mesh="exo_left_leg_mesh"
+                  pos="-0.425543 0.147807000204 0.0825556002785"/>
+        </body>
+    </body>
+</mujocoinclude>

@@ -1,0 +1,10 @@
+recursive-include configs *.yaml *.json
+recursive-include docs *.md
+recursive-include examples *.py
+include repository_scope.json THIRD_PARTY_NOTICES.md
+prune local
+prune outputs
+prune datasets
+prune converted_datasets
+prune musclemimic/models/smpl
+global-exclude __pycache__ *.py[cod]

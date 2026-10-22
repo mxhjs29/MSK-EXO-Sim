@@ -1,0 +1,2 @@
+goal_type: PayloadGoalTrajMimic
+reward_type: LiftRefinementReward

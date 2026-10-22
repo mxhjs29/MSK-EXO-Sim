@@ -1,0 +1,4 @@
+gpu: null
+num_envs: 2
+wandb_mode: disabled
+output_root: outputs

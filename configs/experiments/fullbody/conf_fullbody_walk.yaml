@@ -1,0 +1,59 @@
+# Single-motion muscle policy, full myofullbody model, no exoskeleton.
+defaults:
+  - conf_fullbody_demo
+  - _self_
+
+wandb:
+  mode: offline
+  tags: [fullbody, gmr, single-walk]
+
+experiment:
+  run_id: fullbody_walk_kit11
+  checkpoint_root: outputs/fullbody_walk_kit11/checkpoints
+  actor_hidden_layers: [1024, 1024, 1024, 1024, 1024]
+  critic_hidden_layers: [1024, 1024, 1024, 1024, 1024]
+  optimizer_type: adamw
+  lr: 0.0001
+  total_timesteps: 2621440000  # 4096 envs * 64 steps * 10000 PPO updates
+  total_timesteps_is_absolute: true  # Extend the overall target when auto-resuming.
+  env_params:
+    env_name: MjxMyoFullBodyAssistEnv
+    msk_key: myofullbody
+    device_key: null
+    terrain:
+      terrain: flat
+    include_robot_observations: false
+    device_control_mode: zero
+    disable_fingers: true  # Exclude finger joints and their muscle actuators.
+    num_envs: 4096
+    # Sample initial reference frames across the whole source motion.
+    th_params:
+      random_start: true
+      fixed_start_conf: null
+      start_from_random_step: true
+  task_factory:
+    params:
+      amass_dataset_conf:
+        dataset_group: null
+        rel_dataset_path: [KIT/11/WalkingStraightForwards01_poses]
+  ppo_config:
+    num_steps: 64
+    num_minibatches: 128
+    init_std: 0.5
+  validation:
+    interval: 100  # Keep validation/checkpoint cadence at every 100 PPO updates.
+    # Same-motion tracking check; this is not held-out generalization evaluation.
+    deterministic: true
+    start_from_beginning: true
+    th_params:
+      random_start: false
+      fixed_start_conf: [0, 0]
+      start_from_random_step: false
+    num_envs: 8
+    num_steps: 506
+    num: 20
+    video_length: 506
+    video_frequency: 1
+    amass_dataset_conf:
+      dataset_group: null
+      rel_dataset_path: [KIT/11/WalkingStraightForwards01_poses]

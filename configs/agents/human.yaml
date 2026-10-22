@@ -1,0 +1,6 @@
+agent_id: human
+entity_id: human
+policy_id: human_ppo
+controller_type: ppo
+trainable: true
+control_period: 1

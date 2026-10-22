@@ -1,0 +1,40 @@
+device:
+  name: "HipExoskeleton_L1"
+  model_xml: "L1model.xml"
+  compatible_msk: ["myolegs", "myofullbody"]
+
+# The torso support pose is copied from fullbody_exo. The two exoskeleton
+# legs are then closed onto femur_r/l, matching fullbody_exo's welds.
+attachments:
+  - device_body: "exo_torso"
+    parent_body: "torso"
+    pos: [-0.15, -0.1, 0.21]
+    quat: [0.5, -0.5, 0.5, 0.5]
+
+equality:
+  - type: "weld"
+    device_body: "exo_right_leg"
+    parent_body: "femur_r"
+    solimp: [0.95, 0.99, 0.001, 0.5, 2.0]
+    solref: [0.02, 1.0]
+    relpose: [0.138647704, -0.0484062684, -0.0145765657, 0.461526375, 0.53608899, -0.461159316, -0.535662287]
+  - type: "weld"
+    device_body: "exo_left_leg"
+    parent_body: "femur_l"
+    solimp: [0.95, 0.99, 0.001, 0.5, 2.0]
+    solref: [0.02, 1.0]
+    relpose: [-0.138327795, -0.0482846443, -0.0145582336, 0.461526375, 0.53608899, -0.461159316, -0.535662287]
+
+actuators:
+  - name: "hip_exo_right_motor"
+    type: "motor"
+    joint: "exo_right_hip_flexion"
+    gear: [1.0]
+    ctrlrange: [-20, 20]
+    ctrllimited: true
+  - name: "hip_exo_left_motor"
+    type: "motor"
+    joint: "exo_left_hip_flexion"
+    gear: [1.0]
+    ctrlrange: [-20, 20]
+    ctrllimited: true

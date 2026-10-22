@@ -1,0 +1,23 @@
+tasks:
+  walk:
+    checkpoint: outputs/fullbody_walk_kit11/checkpoints/fullbody_walk_kit11/checkpoint_10000
+    AMASS_PATH: datasets/musclemimic-msk
+    CONVERTED_AMASS_PATH: outputs/fullbody_walk_kit11/amass_cache
+    SMPL_MODEL_PATH: musclemimic/models/smpl
+    source: datasets/musclemimic-msk/KIT/11/WalkingStraightForwards01_poses.npz
+  run:
+    checkpoint: outputs/fullbody_run_h/checkpoints/fullbody_run_h/checkpoint_10000
+    AMASS_PATH: outputs/fullbody_run_h/reference_data/sources
+    CONVERTED_AMASS_PATH: outputs/fullbody_run_h/reference_data/amass_cache
+    SMPL_MODEL_PATH: musclemimic/models/smpl
+    source: outputs/fullbody_run_h/reference_data/sources/KIT/183/walking_run05_crop_65_436_poses.npz
+  bend:
+    checkpoint: outputs/fullbody_bend/checkpoints/fullbody_bend/checkpoint_10000
+    AMASS_PATH: datasets/musclemimic-msk
+    CONVERTED_AMASS_PATH: outputs/fullbody_bend/reference_data/amass_cache_root_aligned
+    SMPL_MODEL_PATH: musclemimic/models/smpl
+    source: datasets/musclemimic-msk/CMU/115/115_02_poses.npz
+  lift:
+    checkpoint: outputs/fullbody_lift_dumbbell/checkpoints/fullbody_lift_dumbbell/checkpoint_7400
+    CONVERTED_C3D_PATH: outputs/fullbody_lift_dumbbell/reference_data
+    source: outputs/fullbody_lift_dumbbell/standing_right_dumbbell.npz

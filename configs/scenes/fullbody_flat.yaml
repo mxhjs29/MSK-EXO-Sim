@@ -1,0 +1,7 @@
+scene_id: fullbody_flat
+entities:
+- entity_id: human
+  kind: msk
+  model_key: myofullbody
+terrain:
+  terrain: flat

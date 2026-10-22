@@ -1,0 +1,231 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[project]
+name = "musclemimic"
+version = "0.1.1"
+description = "Towards Embodied AI with MuscleMimic: Unlocking full-body musculoskeletal motor learning at scale"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{name="MuscleMimic Team"}]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+keywords = [
+    "Imitation Learning",
+    "Reinforcement Learning",
+    "Biomechanics",
+    "Muscle Models",
+    "Motion Capture",
+    "JAX",
+    "MuJoCo"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    # Core dependencies
+    "numpy==2.2.6",
+    "scipy>=1.14.0",
+
+    # MuJoCo/JAX stack
+    "mujoco-mjx==3.4.0",
+    "mujoco==3.4.0",
+    "warp-lang==1.10.0",
+    "jax==0.7.2",
+    "jaxlib==0.7.2",
+    "flax==0.12.0",
+    "optax>=0.2.4",
+    "orbax-checkpoint==0.11.37",
+    "distrax==0.1.7",
+
+    # Configuration & utilities
+    "hydra-core",
+    "pyyaml",
+    "ml-collections>=1.1.0",
+
+    # Data processing
+    "opencv-python",
+    "gitpython",
+    "lxml>=6.0.0",
+    "tqdm",
+    "huggingface_hub",
+
+    # Visualization & media
+    "imageio>=2.37.0",
+    "imageio-ffmpeg>=0.6.0",
+    "glfw>=2.9.0",
+    "seaborn>=0.13.2",
+
+    # ML metrics & logging
+    "metrx",
+    "wandb>=0.19.10",
+
+    "viser>=1.0.10",
+    "trimesh>=4.0.0",
+    "Pillow>=10.0.0",
+
+    # MyoAssist model composition stack
+    "myosuite==2.8.4",
+    "myo-sim>=0.2.1",
+    "assist-sim>=1.0.0",
+    "myoassist-terrains>=1.0.0",
+    "dm-control==1.0.36",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pytest",
+    "pre-commit",
+]
+
+cuda = [
+    "jax[cuda12]==0.7.2 ; sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+
+# SMPL dependencies
+smpl = [
+    "torch",
+    "smplx @ git+https://github.com/amathislab/smplx",
+    "joblib",
+]
+
+# GMR (General Motion Retargeting)
+gmr = [
+    "general-motion-retargeting @ git+https://github.com/amathislab/gmr_plus.git@1b4eb9864360fa822b1290f34592da6393a4d496",
+]
+
+# C3D file visualization
+c3d = [
+    "ezc3d",
+]
+
+[project.scripts]
+musclemimic-train = "musclemimic.cli.train_fullbody:experiment"
+musclemimic-evaluate = "musclemimic.runner.evaluation.fullbody:main"
+musclemimic-compose = "musclemimic.cli.compose:main"
+
+
+# Dataset path configuration
+musclemimic-set-smpl-model-path = "musclemimic.utils:set_smpl_model_path"
+musclemimic-set-c3d-model-path = "musclemimic.utils:set_c3d_model_path"
+musclemimic-set-moshpp-assets-path = "musclemimic.utils:set_moshpp_assets_path"
+musclemimic-set-amass-path = "musclemimic.utils:set_amass_path"
+musclemimic-set-conv-amass-path = "musclemimic.utils:set_converted_amass_path"
+musclemimic-set-conv-c3d-path = "musclemimic.utils:set_converted_c3d_path"
+musclemimic-set-lafan1-path = "musclemimic.utils:set_lafan1_path"
+musclemimic-set-conv-lafan1-path = "musclemimic.utils:set_converted_lafan1_path"
+musclemimic-set-all-caches = "musclemimic.utils:set_all_caches"
+musclemimic-retarget-visualize = "musclemimic.retargeting.visualize:main"
+
+[project.urls]
+Homepage = "https://github.com/mxhjs29/human-robot-sim-field"
+Repository = "https://github.com/mxhjs29/human-robot-sim-field"
+Issues = "https://github.com/mxhjs29/human-robot-sim-field/issues"
+
+# MyoSuite 2.8.4 metadata requests older MuJoCo/dm-control versions, while
+# the MyoAssist sibling packages and this project use the MuJoCo 3.4 stack.
+[tool.uv]
+override-dependencies = ["mujoco>=3.4,<3.5", "dm-control==1.0.36"]
+
+[[tool.uv.index]]
+name = "mujoco"
+url = "https://py.mujoco.org"
+explicit = true
+
+[[tool.uv.index]]
+name = "nvidia"
+url = "https://pypi.nvidia.com"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+myo-sim = { path = "models/myo_sim", editable = true }
+assist-sim = { path = "models/assist_sim", editable = true }
+myoassist-terrains = { path = "models/myoassist_terrains", editable = true }
+
+# Match the pinned GMR backend with the project-owned myo_sim parameter module.
+[[tool.uv.dependency-metadata]]
+name = "general-motion-retargeting"
+version = "0.2.0"
+requires-python = ">=3.10"
+requires-dist = [
+    "imageio[ffmpeg]>=2.37.2", "loop-rate-limiters>=1.2.0", "mink>=0.0.13",
+    "mujoco>=3.3.6", "natsort>=8.4.0", "numpy>=2.2.6",
+    "opencv-python>=4.11.0.86", "protobuf>=6.33.0", "psutil>=7.1.3",
+    "qpsolvers[daqp]", "redis[hiredis]>=7.0.1", "rich>=14.2.0",
+    "scipy>=1.15.3", "smplx", "tqdm>=4.67.1", "torch>=2.0.0",
+    "joblib>=1.3.0", "pytest>=9.0.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["musclemimic*", "loco_mujoco*", "fullbody*"]
+exclude = ["musclemimic.models.smpl", "musclemimic.models.smpl.*", "local", "local.*"]
+
+[tool.setuptools.package-data]
+"musclemimic.retargeting" = ["*.txt"]
+"loco_mujoco.smpl" = ["robot_confs/*.yaml", "gmr_configs/*.json"]
+"musclemimic.data.preprocessing" = ["*.json"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes (includes import errors)
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "DTZ", # flake8-datetimez
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+    "F401",  # imported but unused (too noisy during development)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py files
+
+[tool.ruff.lint.isort]
+known-first-party = ["musclemimic", "loco_mujoco"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: marks tests as integration tests (may require external resources)",
+]
+
+[tool.setuptools.data-files]
+"share/musclemimic/configs/agents" = ["configs/agents/human.yaml"]
+"share/musclemimic/configs/algorithms" = ["configs/algorithms/ppo.yaml", "configs/algorithms/ppo_moe.yaml"]
+"share/musclemimic/configs/datasets" = ["configs/datasets/manifest.yaml"]
+"share/musclemimic/configs/devices" = ["configs/devices/hippo.yaml", "configs/devices/none.yaml"]
+"share/musclemimic/configs/evaluation" = ["configs/evaluation/frozen_policy.yaml"]
+"share/musclemimic/configs/experiments/fullbody" = ["configs/experiments/fullbody/conf_fullbody.yaml", "configs/experiments/fullbody/conf_fullbody_assist.yaml", "configs/experiments/fullbody/conf_fullbody_bend.yaml", "configs/experiments/fullbody/conf_fullbody_demo.yaml", "configs/experiments/fullbody/conf_fullbody_gmr.yaml", "configs/experiments/fullbody/conf_fullbody_gmr_resnet.yaml", "configs/experiments/fullbody/conf_fullbody_lift_dumbbell.yaml", "configs/experiments/fullbody/conf_fullbody_moe.yaml", "configs/experiments/fullbody/conf_fullbody_run.yaml", "configs/experiments/fullbody/conf_fullbody_walk.yaml", "configs/experiments/fullbody/conf_gait120_emg.yaml"]
+"share/musclemimic/configs/msk" = ["configs/msk/arms.yaml", "configs/msk/fullbody.yaml", "configs/msk/legs.yaml"]
+"share/musclemimic/configs/objects" = ["configs/objects/box.yaml", "configs/objects/dumbbell.yaml"]
+"share/musclemimic/configs/rewards/common" = ["configs/rewards/common/fullbody.yaml"]
+"share/musclemimic/configs/rewards/tasks" = ["configs/rewards/tasks/box_lift.yaml", "configs/rewards/tasks/dumbbell_lift.yaml"]
+"share/musclemimic/configs/runtime" = ["configs/runtime/example.yaml"]
+"share/musclemimic/configs/scenes" = ["configs/scenes/fullbody_box.yaml", "configs/scenes/fullbody_dumbbell.yaml", "configs/scenes/fullbody_flat.yaml", "configs/scenes/fullbody_hippo.yaml", "configs/scenes/legs_slope.yaml"]
+"share/musclemimic/configs/tasks" = ["configs/tasks/box_lift.yaml", "configs/tasks/dumbbell_lift.yaml", "configs/tasks/imitation.yaml"]
+"share/musclemimic/configs/terrains" = ["configs/terrains/flat.yaml", "configs/terrains/slope.yaml"]
+"share/musclemimic/configs/experiments/fullbody/rewards/common" = ["configs/rewards/common/fullbody.yaml"]

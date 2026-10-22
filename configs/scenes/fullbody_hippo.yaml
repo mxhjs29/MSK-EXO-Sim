@@ -1,0 +1,10 @@
+scene_id: fullbody_hippo
+entities:
+- entity_id: human
+  kind: msk
+  model_key: myofullbody
+- entity_id: device
+  kind: device
+  model_key: Hippo_L1
+terrain:
+  terrain: flat

@@ -1,0 +1,349 @@
+{
+  "mujoco_version": "3.4.0",
+  "resolution": [
+    960,
+    720
+  ],
+  "description": "Static MuJoCo renders from project models, with no policy or dynamics replay; device previews use a translucent human for context.",
+  "images": [
+    {
+      "image": "msk_myofullbody.png",
+      "kind": "msk",
+      "key": "myofullbody",
+      "msk_key": "myofullbody",
+      "device_key": null,
+      "terrain": {
+        "terrain": "flat"
+      },
+      "pose": "model qpos0",
+      "render_only_robot_pose": null,
+      "camera": {
+        "lookat": [
+          0.0,
+          0.0,
+          0.96
+        ],
+        "distance": 2.85,
+        "azimuth": 135.0,
+        "elevation": -12.0
+      },
+      "nq": 129,
+      "nv": 128,
+      "nu": 416,
+      "sha256": "0405fc295ee6779baba6dab472f05676a5a16e0ad9ee87ff8f8fcf91d559c1bc"
+    },
+    {
+      "image": "msk_myolegs.png",
+      "kind": "msk",
+      "key": "myolegs",
+      "msk_key": "myolegs",
+      "device_key": null,
+      "terrain": {
+        "terrain": "flat"
+      },
+      "pose": "model qpos0",
+      "render_only_robot_pose": null,
+      "camera": {
+        "lookat": [
+          0.0,
+          0.0,
+          0.96
+        ],
+        "distance": 2.85,
+        "azimuth": 135.0,
+        "elevation": -12.0
+      },
+      "nq": 35,
+      "nv": 34,
+      "nu": 80,
+      "sha256": "71bdbe1b60bf0c8e90fb80c279e21a7849739448bec18192b95f77efe23a9c1d"
+    },
+    {
+      "image": "msk_myolegs26.png",
+      "kind": "msk",
+      "key": "myolegs26",
+      "msk_key": "myolegs26",
+      "device_key": null,
+      "terrain": {
+        "terrain": "flat"
+      },
+      "pose": "model qpos0",
+      "render_only_robot_pose": null,
+      "camera": {
+        "lookat": [
+          0.0,
+          0.0,
+          0.96
+        ],
+        "distance": 2.85,
+        "azimuth": 135.0,
+        "elevation": -12.0
+      },
+      "nq": 47,
+      "nv": 46,
+      "nu": 26,
+      "sha256": "e78c81a3d4e0cb2d636a6b47416b56b2b86576a18ddc6ef6f51392b0daf0bffd"
+    },
+    {
+      "image": "msk_myoarms.png",
+      "kind": "msk",
+      "key": "myoarms",
+      "msk_key": "myoarms",
+      "device_key": null,
+      "terrain": {
+        "terrain": "flat"
+      },
+      "pose": "model qpos0",
+      "render_only_robot_pose": null,
+      "camera": {
+        "lookat": [
+          0.0,
+          0.0,
+          1.3
+        ],
+        "distance": 1.95,
+        "azimuth": 135.0,
+        "elevation": -12.0
+      },
+      "nq": 76,
+      "nv": 76,
+      "nu": 126,
+      "sha256": "3d54b2f98ba68e1d53cb146db1e0297b252781a28a10ce95a3fff0d8c9f84686"
+    },
+    {
+      "image": "device_Hippo_L1.png",
+      "kind": "device",
+      "key": "Hippo_L1",
+      "msk_key": "myofullbody",
+      "device_key": "Hippo_L1",
+      "terrain": {
+        "terrain": "flat"
+      },
+      "pose": "stand keyframe",
+      "render_only_robot_pose": null,
+      "camera": {
+        "lookat": [
+          0.0,
+          0.0,
+          1.02
+        ],
+        "distance": 1.75,
+        "azimuth": 135.0,
+        "elevation": -12.0
+      },
+      "nq": 129,
+      "nv": 128,
+      "nu": 418,
+      "sha256": "44be44a9defc8fa8fcd1533ff08caa5da830ded87cf2a76151c290fe69d87575"
+    },
+    {
+      "image": "device_HipExoskeleton_L1.png",
+      "kind": "device",
+      "key": "HipExoskeleton_L1",
+      "msk_key": "myofullbody",
+      "device_key": "HipExoskeleton_L1",
+      "terrain": {
+        "terrain": "flat"
+      },
+      "pose": "stand keyframe",
+      "render_only_robot_pose": null,
+      "camera": {
+        "lookat": [
+          0.0,
+          0.0,
+          1.02
+        ],
+        "distance": 1.75,
+        "azimuth": 135.0,
+        "elevation": -12.0
+      },
+      "nq": 131,
+      "nv": 130,
+      "nu": 418,
+      "sha256": "62babeba08d223f7f1e1bf6142c80aab1efbba5cebc14badd9ed0899784ce09b"
+    },
+    {
+      "image": "device_ElbowExoskeleton_L1.png",
+      "kind": "device",
+      "key": "ElbowExoskeleton_L1",
+      "msk_key": "myofullbody",
+      "device_key": "ElbowExoskeleton_L1",
+      "terrain": {
+        "terrain": "flat"
+      },
+      "pose": "stand keyframe",
+      "render_only_robot_pose": null,
+      "camera": {
+        "lookat": [
+          0.0,
+          0.0,
+          1.27
+        ],
+        "distance": 1.85,
+        "azimuth": 135.0,
+        "elevation": -12.0
+      },
+      "nq": 131,
+      "nv": 130,
+      "nu": 418,
+      "sha256": "da9f9e630bf136de1f423734628e9bddc65cab69d82b31a2765fe4e917168cba"
+    },
+    {
+      "image": "device_franka_emika_panda.png",
+      "kind": "device",
+      "key": "franka_emika_panda",
+      "msk_key": "myofullbody",
+      "device_key": "franka_emika_panda",
+      "terrain": {
+        "terrain": "flat"
+      },
+      "pose": "model qpos0",
+      "render_only_robot_pose": [
+        0.0,
+        -0.5,
+        0.0,
+        -2.0,
+        0.0,
+        1.5,
+        0.8
+      ],
+      "camera": {
+        "lookat": [
+          -0.56,
+          -1.0,
+          1.112
+        ],
+        "distance": 2.5,
+        "azimuth": 120.0,
+        "elevation": -20.0
+      },
+      "nq": 145,
+      "nv": 143,
+      "nu": 425,
+      "sha256": "0560acaeb63392cc644fdfc7d13c828078a1d5213b8a5b7aaf381d1646d24b4c"
+    },
+    {
+      "image": "terrain_flat.png",
+      "kind": "terrain",
+      "key": "flat",
+      "msk_key": "myofullbody",
+      "device_key": null,
+      "terrain": {
+        "terrain": "flat"
+      },
+      "pose": "model qpos0",
+      "render_only_robot_pose": null,
+      "camera": {
+        "lookat": [
+          0.0,
+          0.0,
+          0.96
+        ],
+        "distance": 5.5,
+        "azimuth": 110.0,
+        "elevation": -18.0
+      },
+      "nq": 129,
+      "nv": 128,
+      "nu": 416,
+      "sha256": "b40e1c98a3d9fd7df3d785f2a4133cd56228cc7ad9672990db0ba288eb39e0b3"
+    },
+    {
+      "image": "terrain_slope.png",
+      "kind": "terrain",
+      "key": "slope",
+      "msk_key": "myofullbody",
+      "device_key": null,
+      "terrain": {
+        "terrain": "slope",
+        "deg": 15
+      },
+      "pose": "model qpos0",
+      "render_only_robot_pose": null,
+      "camera": {
+        "lookat": [
+          0.0,
+          0.0,
+          0.96
+        ],
+        "distance": 5.5,
+        "azimuth": 110.0,
+        "elevation": -18.0
+      },
+      "nq": 129,
+      "nv": 128,
+      "nu": 416,
+      "sha256": "7e90419554697fa4c61f7a9ddb043c503866acc67c5560f5f6620972c642bf12"
+    },
+    {
+      "image": "terrain_warehouse.png",
+      "kind": "terrain",
+      "key": "warehouse",
+      "msk_key": "myofullbody",
+      "device_key": null,
+      "terrain": {
+        "terrain": "warehouse"
+      },
+      "pose": "model qpos0",
+      "render_only_robot_pose": null,
+      "camera": {
+        "lookat": [
+          0.0,
+          -1.3,
+          0.75
+        ],
+        "distance": 17.0,
+        "azimuth": 110.0,
+        "elevation": -32.0
+      },
+      "nq": 185,
+      "nv": 176,
+      "nu": 416,
+      "sha256": "3fe08e2a23445453b577edd6e698e6d390c60c645a8fcde4a640940a4b140858"
+    },
+    {
+      "image": "terrain_stairs.png",
+      "kind": "terrain",
+      "key": "stairs",
+      "msk_key": "myofullbody",
+      "device_key": null,
+      "terrain": {
+        "terrain_name": "readme_stairs",
+        "grid": {
+          "rows": 1,
+          "cols": 1,
+          "tile_size": [
+            4.0,
+            4.0
+          ]
+        },
+        "border": {
+          "width": 0.3
+        },
+        "tiles": [
+          {
+            "row": 0,
+            "col": 0,
+            "type": "stairs"
+          }
+        ]
+      },
+      "pose": "model qpos0",
+      "render_only_robot_pose": null,
+      "camera": {
+        "lookat": [
+          0.0,
+          0.0,
+          0.4
+        ],
+        "distance": 7.0,
+        "azimuth": 135.0,
+        "elevation": -30.0
+      },
+      "nq": 129,
+      "nv": 128,
+      "nu": 416,
+      "sha256": "dee08b67b71ddc0bb03375a35dcc416f7d02d920aa79eea903ece22077b44530"
+    }
+  ]
+}

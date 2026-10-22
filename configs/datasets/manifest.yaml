@@ -1,0 +1,23 @@
+datasets:
+  raw_motion_sources:
+    repo_id: mxhjs29/musclemimic-msk
+    revision: 2d6ce93d8d743083e822479f3ab27b6ac35dfc70
+    repo_type: dataset
+    visibility: private
+    families:
+    - amass
+    - gait120
+    definition: Original provider files; this release adds only Gait120.
+    groups:
+      amass:
+        local_subdir: musclemimic-msk
+        allow_patterns:
+        - KIT/**
+        - CMU/**
+        - Transitions_mocap/**
+        - BABEL/**
+        - LICENSE.txt
+      gait120:
+        local_subdir: .
+        allow_patterns:
+        - Gait120_101_to_110/**

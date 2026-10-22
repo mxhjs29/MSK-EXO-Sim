@@ -1,0 +1,42 @@
+device:
+  name: "ElbowExoskeleton_L1"
+  model_xml: "L1model.xml"
+  compatible_msk: ["myoarms", "myofullbody"]
+
+# Placement copied from bimanual_exo/fullbody_exo. The upper exoskeleton
+# bodies are rigidly attached to the corresponding humeri.
+attachments:
+  - device_body: "exo_right_upper"
+    parent_body: "humerus_r"
+    pos: [0.01, 0.0, -0.01]
+    quat: [1.0, 0.0, 0.0, 0.0]
+  - device_body: "exo_left_upper"
+    parent_body: "humerus_l"
+    pos: [0.01, 0.0, 0.01]
+    quat: [1.0, 0.0, 0.0, 0.0]
+
+# Closed-loop connections copied from the composite models:
+# exoskeleton lower links are welded to the biological ulnae.
+equality:
+  - type: "weld"
+    device_body: "exo_right_lower"
+    parent_body: "ulna_r"
+    relpose: [-0.0192662464, -0.102213808, -0.00010884031, -0.485062094, 0.483879064, 0.515279057, 0.514842995]
+  - type: "weld"
+    device_body: "exo_left_lower"
+    parent_body: "ulna_l"
+    relpose: [-0.0922947675, -0.0138265313, 0.0204734687, 0.500397921, -0.499999921, -0.499601921, 0.499999921]
+
+actuators:
+  - name: "elbow_exo_right_motor"
+    type: "motor"
+    joint: "exo_right_elbow"
+    gear: [1.0]
+    ctrlrange: [-20, 20]
+    ctrllimited: true
+  - name: "elbow_exo_left_motor"
+    type: "motor"
+    joint: "exo_left_elbow"
+    gear: [1.0]
+    ctrlrange: [-20, 20]
+    ctrllimited: true

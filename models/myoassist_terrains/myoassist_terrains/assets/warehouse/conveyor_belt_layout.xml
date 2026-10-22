@@ -1,0 +1,49 @@
+<mujoco>
+    <!-- Shift the complete conveyor row away from the rack columns while
+         keeping its two inner belts around the model origin. -->
+    <body name="fullcb0" pos="0.4 -10 0">
+    
+        <body pos="-2.8 3 0.20" name="cb0">
+            <geom size="0.4 3.6 0.2" type="box" name="cb0" mass="200000" material="table_mat" condim="1"></geom>
+            <geom size="0.25 3.6 0.002" type="box" mass="200000" material="puck_mat" condim="1" pos="0 0 0.2"></geom>
+            <site name="cb0" pos="1e-10 1e-10 0" size="0.02 0.02 0.02" rgba="1 0 0 0.5" type="box"></site>
+            <body name="side_camera0" pos="-1.5 -0.8 0.3" quat="0.5 0.5 -0.5 -0.5">
+			<camera euler="0 0 0" fovy="45" name="side_camera0" pos="0 0 0"></camera>
+            </body>
+            <body name="side_camera1" pos="1.5 1.4 0.3" quat="0.5 0.5 0.5 0.5">
+			<camera euler="0 0 0" fovy="45" name="side_camera1" pos="0 0 0"></camera>
+            </body>
+
+
+        </body>
+
+        <body pos="2 3 0.2" name="cb1">
+            <geom size="0.4 3.6 0.2" type="box" mass="2000" material="table_mat" condim="3"></geom>
+            <geom size="0.25 3.6 0.002" type="box" mass="2000" material="puck_mat" condim="3" pos="0 0 0.2"></geom>
+            <site name="cb1" pos="1e-10 1e-10 0" size="0.02 0.02 0.02" rgba="1 0 0 0.5" type="box"></site>
+
+
+        </body>
+        <body pos="6.8 3 0.2" name="cb2">
+            <geom size="0.4 3.6 0.2" type="box" mass="2000" material="table_mat" condim="3"></geom>
+            <geom size="0.25 3.6 0.002" type="box" mass="2000" material="puck_mat" condim="3" pos="0 0 0.2"></geom>
+            <site name="cb2" pos="1e-10 1e-10 0" size="0.02 0.02 0.02" rgba="1 0 0 0.5" type="box"></site>
+
+
+        </body>
+        <body pos="11.6 3 0.2" name="cb3">
+            <geom size="0.4 3.6 0.2" type="box" mass="2000" material="table_mat" condim="3"></geom>
+            <geom size="0.25 3.6 0.002" type="box" mass="2000" material="puck_mat" condim="3" pos="0 0 0.2"></geom>
+            <site name="cb3" pos="1e-10 1e-10 0" size="0.02 0.02 0.02" rgba="1 0 0 0.5" type="box"></site>
+
+
+        </body>
+        <body pos="-7.6 3 0.2" name="cb4">
+            <geom size="0.4 3.6 0.2" type="box" mass="2000" material="table_mat" condim="3"></geom>
+            <geom size="0.25 3.6 0.002" type="box" mass="2000" material="puck_mat" condim="3" pos="0 0 0.2"></geom>
+            <site name="cb4" pos="1e-10 1e-10 0" size="0.02 0.02 0.02" rgba="1 0 0 0.5" type="box"></site>
+
+
+        </body>
+</body>
+</mujoco>

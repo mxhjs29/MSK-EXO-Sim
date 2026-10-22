@@ -1,0 +1,19 @@
+<mujocoinclude model="MuscleMimicElbowExoskeletonAssets">
+    <!-- Meshes are the original bilateral exoskeleton meshes, separated from
+         the full-body musculoskeletal model. -->
+    <default>
+        <default class="exo_visual">
+            <geom type="mesh" contype="0" conaffinity="0" condim="3" group="0" rgba="1 1 1 1"/>
+        </default>
+        <default class="exo_elbow">
+            <joint type="hinge" limited="true" damping="0.05" armature="1e-5"/>
+        </default>
+    </default>
+
+    <asset>
+        <mesh name="exo_right_upper_mesh" file="meshes/right_upper_exo.STL"/>
+        <mesh name="exo_right_lower_mesh" file="meshes/right_lower_exo.STL"/>
+        <mesh name="exo_left_upper_mesh" file="meshes/left_upper_exo.STL"/>
+        <mesh name="exo_left_lower_mesh" file="meshes/left_lower_exo.STL"/>
+    </asset>
+</mujocoinclude>

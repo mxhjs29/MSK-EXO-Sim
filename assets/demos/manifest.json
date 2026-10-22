@@ -1,0 +1,120 @@
+{
+  "model": "myofullbody from models/myo_sim",
+  "kind": "trained PPO evaluation recordings",
+  "editing": "Full-duration trained-policy motions with moving purple references. Bend/lift replay the saved qpos/qref with visible muscle paths in one full-body view; no new poses generated.",
+  "object_rendering": {
+    "script": "scripts/render_readme_object_demos.py",
+    "layout": "Single full-body view with phase-aligned human reference overlay",
+    "muscle_paths_visible": true,
+    "reference_rgba": [
+      0.471,
+      0.38,
+      0.812,
+      0.35
+    ]
+  },
+  "mp4": "H.264 / yuv420p / 960x480 / 30fps / faststart",
+  "preview": "Looping GIF / 480x240 / 12fps",
+  "demos": [
+    {
+      "task": "walk",
+      "title": "行走",
+      "source": "outputs/fullbody_walk_kit11/run/validation_42_t2621440000_20261002_153426/MyoFullBodyAssistEnv.mp4",
+      "checkpoint": "outputs/fullbody_walk_kit11/checkpoints/fullbody_walk_kit11/checkpoint_10000",
+      "crop": "crop=1280:640:0:80",
+      "mass_kg": null,
+      "source_sha256": "4895289e631c2a6f17f83eac1e9ff02c1695b33e656663e6970983b2daa3a33e",
+      "evidence": null,
+      "duration_s": 5.067,
+      "mp4": {
+        "file": "walk.mp4",
+        "sha256": "9675f78fa4f96e6b23e0d7e367fd9b93192f254e24d36cf630aa943dcf7ae737",
+        "bytes": 371879
+      },
+      "gif": {
+        "file": "walk.gif",
+        "sha256": "c0d4e052b7c41d17a6bfe15a6dc2d707266ae97036e025cc06c08a4ce6da5f41",
+        "bytes": 856684
+      }
+    },
+    {
+      "task": "run",
+      "title": "跑步",
+      "source": "outputs/fullbody_run_h/run/validation_64_t2621440000_20261003_020431/MyoFullBodyAssistEnv.mp4",
+      "checkpoint": "outputs/fullbody_run_h/checkpoints/fullbody_run_h/checkpoint_10000",
+      "crop": "crop=1280:640:0:80",
+      "mass_kg": null,
+      "source_sha256": "1697cd8fa72b78a3daaafea5f0e7f32432d65e86b0e4a389bfb0875d494f87b3",
+      "evidence": null,
+      "duration_s": 3.7,
+      "mp4": {
+        "file": "run.mp4",
+        "sha256": "4b703a7e402da505bfaade0139825a9b9a129872b238c0eec00478d1cb8645b5",
+        "bytes": 310028
+      },
+      "gif": {
+        "file": "run.gif",
+        "sha256": "b296100570a185bd9cc00c6fd6270e940fb895313c402fa16e9ec543d205411f",
+        "bytes": 658876
+      }
+    },
+    {
+      "task": "bend",
+      "title": "弯腰搬箱",
+      "source": "outputs/readme_object_demos/bend.mp4",
+      "rollout": "outputs/payload_refinement_v4/bend/evaluations/pose_1kg_1/start_0_rollout.npz",
+      "checkpoint": "outputs/payload_refinement_v4/bend/training/pose_1kg_1/checkpoints/pose_1kg_1/checkpoint_200",
+      "evaluation": "outputs/payload_refinement_v4/bend/evaluations/pose_1kg_1/results.json",
+      "crop": "crop=960:480:0:0",
+      "mass_kg": 1.0,
+      "source_sha256": "e3ac2d9d5d27f6881eade123f393695be92d21265b9677106bc1ddc426dd3df5",
+      "rollout_sha256": "49bb9aae5b025d1a6fb3b00e3b33d3dfa2f7628b216d17c41fb91ca19bc59923",
+      "evidence": {
+        "start": 0,
+        "steps": 317,
+        "termination": "reference_end",
+        "initial_box_height_m": 0.42909510572304943,
+        "maximum_box_height_m": 1.3309968209653535
+      },
+      "duration_s": 3.2,
+      "mp4": {
+        "file": "bend.mp4",
+        "sha256": "a7f7db0e1182d9bd031528d8a0e8ec8fe1565a4f2099c8c41d2c8f4e6c0956ce",
+        "bytes": 245111
+      },
+      "gif": {
+        "file": "bend.gif",
+        "sha256": "c64ab35b97736085ae0b0379bae4473251f9b74687297a5a6a4305ab40cde47c",
+        "bytes": 278698
+      }
+    },
+    {
+      "task": "lift",
+      "title": "哑铃举臂",
+      "source": "outputs/readme_object_demos/lift.mp4",
+      "rollout": "outputs/payload_refinement_v3/lift/evaluations/refine_2kg_1/start_0_rollout.npz",
+      "checkpoint": "outputs/payload_refinement_v3/lift/training/refine_2kg_1/checkpoints/refine_2kg_1/checkpoint_200",
+      "evaluation": "outputs/payload_refinement_v3/lift/evaluations/refine_2kg_1/results.json",
+      "crop": "crop=960:480:0:0",
+      "mass_kg": 2.0,
+      "source_sha256": "82c09370e06f330659287d54ff8e47943f1a406f648480aac88f0474f7804e0b",
+      "rollout_sha256": "53f9e9dd6b147f0d8d4a679ce64fe42dacd0791330db81d1b225973f5fc4df75",
+      "evidence": {
+        "start": 0,
+        "steps": 323,
+        "termination": "reference_end"
+      },
+      "duration_s": 3.234,
+      "mp4": {
+        "file": "lift.mp4",
+        "sha256": "e3d1359040716627a3088848e7924bf45ca60610ffc4b506560b4242e103b201",
+        "bytes": 212874
+      },
+      "gif": {
+        "file": "lift.gif",
+        "sha256": "8f43aabdda7df09cb3232052dbb0f010d6867958cdc62db16f4cc4f2604ba211",
+        "bytes": 202440
+      }
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+goal_type: GoalTrajMimic
+reward_type: MimicReward

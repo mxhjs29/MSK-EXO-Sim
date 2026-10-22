@@ -1,0 +1,64 @@
+# Carrying motion: CMU/115/115_02, pick up an object and put it on a table.
+# Full myofullbody with wrist/finger joints and muscles; no exoskeleton.
+defaults:
+  - conf_fullbody_demo
+  - _self_
+
+wandb:
+  mode: offline
+  tags: [fullbody, gmr, bend, cmu115-02, fingers]
+
+experiment:
+  run_id: fullbody_bend
+  checkpoint_root: outputs/fullbody_bend/checkpoints
+  actor_hidden_layers: [1024, 1024, 1024, 1024, 1024]
+  critic_hidden_layers: [1024, 1024, 1024, 1024, 1024]
+  optimizer_type: adamw
+  lr: 0.0001
+  total_timesteps: 2621440000  # 4096 envs * 64 steps * 10000 PPO updates
+  total_timesteps_is_absolute: true
+  env_params:
+    env_name: MjxMyoFullBodyAssistEnv
+    msk_key: myofullbody
+    device_key: null
+    terrain:
+      terrain: flat
+    include_robot_observations: false
+    device_control_mode: zero
+    disable_fingers: false
+    num_envs: 4096
+    # Sample initial reference frames across the whole carrying motion.
+    th_params:
+      random_start: true
+      fixed_start_conf: null
+      start_from_random_step: true
+  task_factory:
+    params:
+      amass_dataset_conf:
+        dataset_group: null
+        rel_dataset_path: [CMU/115/115_02_poses]
+        gmr_config:
+          initialize_root_from_target: true
+  ppo_config:
+    num_steps: 64
+    num_minibatches: 128
+    init_std: 0.5
+  validation:
+    interval: 100
+    # Evaluate tracking of the same reference from its first frame.
+    deterministic: true
+    start_from_beginning: true
+    th_params:
+      random_start: false
+      fixed_start_conf: [0, 0]
+      start_from_random_step: false
+    num_envs: 8
+    num_steps: 667
+    num: 20
+    video_length: 667
+    video_frequency: 1
+    amass_dataset_conf:
+      dataset_group: null
+      rel_dataset_path: [CMU/115/115_02_poses]
+      gmr_config:
+        initialize_root_from_target: true

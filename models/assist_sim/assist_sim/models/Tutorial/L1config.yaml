@@ -1,0 +1,72 @@
+device:
+  name: "Tutorial_L1"
+  model_xml: "L1model.xml"
+
+attachments:
+  # Tibia R
+  - device_body: "shin_cuff_r"
+    parent_body: "tibia_r"
+  - device_body: "actuator_r"
+    parent_body: "tibia_r"
+  # Calcn R
+  - device_body: "foot_attachment_r"
+    parent_body: "calcn_r"
+  # Tibia L
+  - device_body: "shin_cuff_l"
+    parent_body: "tibia_l"
+  - device_body: "actuator_l"
+    parent_body: "tibia_l"
+  # Calcn L
+  - device_body: "foot_attachment_l"
+    parent_body: "calcn_l"
+
+actuators:
+  - name: "Exo_R"
+    type: "general"
+    joint: "ankle_angle_r"
+    gaintype: "fixed"
+    gainprm: [100, 0, 0]
+    biastype: "none"
+    biasprm: [0, 0, 0]
+    dyntype: "none"
+    dynprm: [1, 0, 0]
+    ctrlrange: [-1, 0]
+    ctrllimited: true
+    gear: [1.0]
+  - name: "Exo_L"
+    type: "general"
+    joint: "ankle_angle_l"
+    gaintype: "fixed"
+    gainprm: [100, 0, 0]
+    biastype: "none"
+    biasprm: [0, 0, 0]
+    dyntype: "none"
+    dynprm: [1, 0, 0]
+    ctrlrange: [-1, 0]
+    ctrllimited: true
+    gear: [1.0]
+
+# The lunge knee is authored for the myoLeg convention, where the knee flexes negative
+# (range [-2.53, 0]).  The 80-muscle `myolegs` and `myofullbody`
+# flex positive (range [0, +2.09]), so the same value hyperextends them: resetting to the
+# pose ejected the model from it, the limit constraint moving the knee ~1.1 rad within 50
+# steps.  Per-MSK blocks merge onto `default`, so only the joint that differs is restated.
+keyframe_overrides:
+  default:
+    stand:
+      pelvis_ty: 0.915
+    walk_left:
+      pelvis_ty: 0.885
+    walk_right:
+      pelvis_ty: 0.885
+    squat:
+      pelvis_ty: 0.73
+    lunge:
+      pelvis_ty: 0.675
+      knee_angle_l: -1.25
+  myolegs:
+    lunge:
+      knee_angle_l: 1.25
+  myofullbody:
+    lunge:
+      knee_angle_l: 1.25

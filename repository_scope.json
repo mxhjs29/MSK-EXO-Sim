@@ -1,0 +1,58 @@
+{
+  "version": 3,
+  "public_directories": [
+    ".github",
+    "models/myo_sim",
+    "models/assist_sim",
+    "models/myoassist_terrains",
+    "loco_mujoco",
+    "musclemimic",
+    "configs",
+    "scripts",
+    "examples",
+    "tests",
+    "docs",
+    "assets",
+    "fullbody",
+    "local/assets/smpl"
+  ],
+  "excluded_directories": [
+    "local",
+    "outputs",
+    "datasets",
+    "converted_datasets",
+    "wandb",
+    "eval_recordings",
+    "plan",
+    "musclemimic/models/smpl"
+  ],
+  "compatibility_directories": [
+    "fullbody",
+    "musclemimic/experiments",
+    "musclemimic/viewer",
+    "musclemimic/web_viewer"
+  ],
+  "multi_agent_status": "CPU shared-world action routing implemented; multi-agent PPO and multi-human composition are future work",
+  "included_exceptions": [
+    "local/assets/smpl",
+    "musclemimic/models/smpl"
+  ],
+  "archive_excluded_directories": [
+    "local",
+    "outputs",
+    "datasets",
+    "converted_datasets",
+    "wandb",
+    "eval_recordings",
+    "plan",
+    "musclemimic/models/smpl"
+  ],
+  "smpl_assets": {
+    "git": "included_via_lfs",
+    "path": "local/assets/smpl",
+    "compatibility_symlink": "musclemimic/models/smpl",
+    "wheel_sdist": "excluded",
+    "licenses": "Preserve bundled notices; third-party redistribution requires the permissions stated in LICENSE.txt."
+  },
+  "maintained_training": "Unified Assist MSK PPO; maintained task configurations use myofullbody for walk/run/bend/lift and payload fine-tuning."
+}

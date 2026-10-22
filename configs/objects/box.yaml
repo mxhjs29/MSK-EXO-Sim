@@ -1,0 +1,3 @@
+model_key: friction_box
+payload_mass_kg: 5.0
+hand_friction: 0.8

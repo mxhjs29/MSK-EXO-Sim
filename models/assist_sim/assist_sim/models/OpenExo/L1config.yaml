@@ -1,0 +1,70 @@
+device:
+  name: "OpenExo_L1"
+  model_xml: "L1model.xml"
+
+attachments:
+  # Tibia R
+  - device_body: "exo_shaft_r"
+    parent_body: "tibia_r"
+  - device_body: "exo_cuff_r"
+    parent_body: "tibia_r"
+  # Calcn R
+  - device_body: "exo_blade_r"
+    parent_body: "calcn_r"
+  # Tibia L
+  - device_body: "exo_shaft_l"
+    parent_body: "tibia_l"
+  - device_body: "exo_cuff_l"
+    parent_body: "tibia_l"
+  # Calcn L
+  - device_body: "exo_blade_l"
+    parent_body: "calcn_l"
+
+actuators:
+  - name: "Exo_R"
+    type: "general"
+    joint: "ankle_angle_r"
+    gaintype: "fixed"
+    gainprm: [100, 0, 0]
+    biastype: "none"
+    biasprm: [0, 0, 0]
+    dyntype: "none"
+    dynprm: [1, 0, 0]
+    ctrlrange: [-1, 0]
+    ctrllimited: true
+    gear: [1.0]
+  - name: "Exo_L"
+    type: "general"
+    joint: "ankle_angle_l"
+    gaintype: "fixed"
+    gainprm: [100, 0, 0]
+    biastype: "none"
+    biasprm: [0, 0, 0]
+    dyntype: "none"
+    dynprm: [1, 0, 0]
+    ctrlrange: [-1, 0]
+    ctrllimited: true
+    gear: [1.0]
+
+# See the note in Tutorial/L1config.yaml: the myoLeg knee flexes negative, the 80-muscle
+# and full-body knees flex positive, so the authored lunge knee needs its sign per lineage.
+# Per-MSK blocks merge onto `default`.
+keyframe_overrides:
+  default:
+    stand:
+      pelvis_ty: 0.92
+    walk_left:
+      pelvis_ty: 0.89
+    walk_right:
+      pelvis_ty: 0.885
+    squat:
+      pelvis_ty: 0.73
+    lunge:
+      pelvis_ty: 0.675
+      knee_angle_l: -1.25
+  myolegs:
+    lunge:
+      knee_angle_l: 1.25
+  myofullbody:
+    lunge:
+      knee_angle_l: 1.25

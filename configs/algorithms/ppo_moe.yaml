@@ -1,0 +1,2 @@
+algorithm: PPOJax
+reference_experiment: experiments/fullbody/conf_fullbody_moe.yaml

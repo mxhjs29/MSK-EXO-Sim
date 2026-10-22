@@ -1,0 +1,63 @@
+# Synthetic standing KIT 3 right-arm motion, full fingers, no physical dumbbell.
+defaults:
+  - conf_fullbody_demo
+  - _self_
+
+wandb:
+  mode: offline
+  tags: [fullbody, lift-dumbbell, synthetic, fingers]
+
+experiment:
+  run_id: fullbody_lift_dumbbell
+  checkpoint_root: outputs/fullbody_lift_dumbbell/checkpoints
+  actor_hidden_layers: [1024, 1024, 1024, 1024, 1024]
+  critic_hidden_layers: [1024, 1024, 1024, 1024, 1024]
+  optimizer_type: adamw
+  lr: 0.0001
+  total_timesteps: 2621440000  # 4096 envs * 64 steps * 10000 updates
+  total_timesteps_is_absolute: true
+  env_params:
+    env_name: MjxMyoFullBodyAssistEnv
+    msk_key: myofullbody
+    device_key: null
+    terrain:
+      terrain: flat
+    include_robot_observations: false
+    device_control_mode: zero
+    disable_fingers: false
+    num_envs: 4096
+    th_params:
+      random_start: true
+      fixed_start_conf: null
+      start_from_random_step: true
+  task_factory:
+    params:
+      amass_dataset_conf: null
+      # Reuse the existing preconverted NPZ loader. This is an edited KIT
+      # trajectory, not raw C3D; no retargeting is performed by this loader.
+      c3d_dataset_conf:
+        rel_dataset_path: [standing_right_dumbbell]
+        retargeting_method: gmr
+        trajectory_cache_type: sparse
+  ppo_config:
+    num_steps: 64
+    num_minibatches: 128
+    init_std: 0.5
+  validation:
+    interval: 100
+    deterministic: true
+    start_from_beginning: true
+    th_params:
+      random_start: false
+      fixed_start_conf: [0, 0]
+      start_from_random_step: false
+    num_envs: 8
+    num_steps: 324
+    num: 20
+    video_length: 324
+    video_frequency: 1
+    amass_dataset_conf: null
+    c3d_dataset_conf:
+      rel_dataset_path: [standing_right_dumbbell]
+      retargeting_method: gmr
+      trajectory_cache_type: sparse

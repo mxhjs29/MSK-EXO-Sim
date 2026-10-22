@@ -1,0 +1,1229 @@
+"""Core model combination logic using the MuJoCo mjSpec API.
+
+Single-phase, fully in-memory flow (needs ``MjSpec.delete``, so the declared range
+``mujoco>=3.4,<3.12``):
+
+1. **Re-anchor** -- apply ``tendon_modifications``, moving the wrap sites of
+   muscles that surgery preserves onto the bone that survives.  This runs
+   *before* the removals: afterwards the cascade has already taken the tendon
+   and there is nothing left to re-anchor.
+2. **Surgery** -- apply every removal (body / geom / actuator / tendon
+   removals) directly on the human ``MjSpec`` via ``spec.delete``, which
+   cascades subtrees and their referencing elements (child bodies, sensors,
+   equality, contact pairs, and the actuators/tendons whose sites lived on
+   removed bodies).
+3. **Attach** -- load the device spec, attach device bodies, edit attributes
+   (mesh swaps, inertial overrides, joint overrides), add actuators, import the
+   device's tendons, then emit the sections ``attach_body`` does *not* migrate
+   (equalities, contacts, sensors) against the combined model, and rebuild
+   keyframes after compile.
+
+``attach_body`` copies a body subtree plus the assets it references; every
+top-level MJCF section -- ``<tendon>``, ``<actuator>``, ``<equality>``,
+``<contact>``, ``<sensor>`` -- stays behind.  Tendons and tendon-driven
+actuators are read back out of the device XML; the rest are authored in YAML
+against the combined model, where both device (prefixed) and human (bare) names
+are in scope.
+
+The human model is an ``MjSpec`` (composed on demand by ``myo_sim`` for a
+registry key, or loaded from an explicit XML path).  It is not serialized and
+reloaded *mid-pipeline* -- torso-composed models do not round-trip cleanly
+through a bare ``to_xml`` -- so all edits happen on the live spec.  Exporting is
+a separate matter: :func:`assist_sim.utils.export_combined_xml` applies the
+default hoist/name fixups that make those models reload, and every MSK key
+round-trips through it.
+"""
+
+from __future__ import annotations
+
+import xml.etree.ElementTree as ET
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
+import mujoco as mj
+
+from .canonical_keyframes import KNEE_JOINTS, LEG_SENTINEL_JOINT, canonical_leg_keyframes
+from .config import _SENSOR_TYPES, ActuatorDef, DeviceConfig, EqualityConstraint
+from .errors import unknown_reference
+from .preprocess import KeyframeData, prepare_device_xml
+
+# qpos / qvel widths per joint type (mjtJoint), for decomposing keyframes.
+_QPOS_WIDTH = {
+    mj.mjtJoint.mjJNT_FREE: 7,
+    mj.mjtJoint.mjJNT_BALL: 4,
+    mj.mjtJoint.mjJNT_SLIDE: 1,
+    mj.mjtJoint.mjJNT_HINGE: 1,
+}
+_QVEL_WIDTH = {
+    mj.mjtJoint.mjJNT_FREE: 6,
+    mj.mjtJoint.mjJNT_BALL: 3,
+    mj.mjtJoint.mjJNT_SLIDE: 1,
+    mj.mjtJoint.mjJNT_HINGE: 1,
+}
+
+# Maps from string names used in YAML to mujoco enum values
+_GAINTYPE_MAP = {
+    "fixed": mj.mjtGain.mjGAIN_FIXED,
+    "affine": mj.mjtGain.mjGAIN_AFFINE,
+    "muscle": mj.mjtGain.mjGAIN_MUSCLE,
+    "user": mj.mjtGain.mjGAIN_USER,
+}
+
+_BIASTYPE_MAP = {
+    "none": mj.mjtBias.mjBIAS_NONE,
+    "affine": mj.mjtBias.mjBIAS_AFFINE,
+    "muscle": mj.mjtBias.mjBIAS_MUSCLE,
+    "user": mj.mjtBias.mjBIAS_USER,
+}
+
+_DYNTYPE_MAP = {
+    "none": mj.mjtDyn.mjDYN_NONE,
+    "integrator": mj.mjtDyn.mjDYN_INTEGRATOR,
+    "filter": mj.mjtDyn.mjDYN_FILTER,
+    "filterexact": mj.mjtDyn.mjDYN_FILTEREXACT,
+    "muscle": mj.mjtDyn.mjDYN_MUSCLE,
+    "user": mj.mjtDyn.mjDYN_USER,
+}
+
+_EQTYPE_MAP = {
+    "connect": mj.mjtEq.mjEQ_CONNECT,
+    "weld": mj.mjtEq.mjEQ_WELD,
+    "joint": mj.mjtEq.mjEQ_JOINT,
+}
+
+# Names that select the world body as an attachment parent (free-rooted device).
+_WORLD_PARENTS = ("world", "worldbody")
+
+# Placeholder name a re-anchored wrap element carries between being created on
+# the surviving body and inheriting the original's name.
+_REANCHOR_TMP_NAME = "__assist_sim_reanchor_tmp__"
+
+# Per wrap-element kind: (MjSpec finder, collection, MjsBody factory, inherited
+# attributes).  Identity, frame and unset sentinels (``fromto``, ``mass``) are
+# excluded, so a re-anchored element differs only in where it is anchored.
+_REANCHOR_KINDS = {
+    "site": ("site", "sites", "add_site", ("quat", "type", "size", "group", "rgba", "material")),
+    "geom": (
+        "geom",
+        "geoms",
+        "add_geom",
+        (
+            "type", "size", "quat", "group", "rgba", "material", "contype", "conaffinity",
+            "condim", "priority", "friction", "solmix", "solref", "solimp", "margin", "gap",
+            "density", "typeinertia",
+        ),
+    ),
+}  # fmt: skip
+
+# Target kind -> (MjSpec finder attribute, mjtObj enum, collection attribute used
+# to list candidates in an error message).
+_TARGET_KINDS = {
+    "body": ("body", mj.mjtObj.mjOBJ_BODY, "bodies"),
+    "joint": ("joint", mj.mjtObj.mjOBJ_JOINT, "joints"),
+    "geom": ("geom", mj.mjtObj.mjOBJ_GEOM, "geoms"),
+    "site": ("site", mj.mjtObj.mjOBJ_SITE, "sites"),
+    "actuator": ("actuator", mj.mjtObj.mjOBJ_ACTUATOR, "actuators"),
+    "tendon": ("tendon", mj.mjtObj.mjOBJ_TENDON, "tendons"),
+}
+
+
+def _resolve_element_name(spec: mj.MjSpec, kind: str, name: str, prefix: str, section: str) -> str:
+    """Resolve *name* against the combined spec, bare first then device-prefixed.
+
+    Device elements arrive from ``attach_body`` namespaced with the device
+    prefix; human elements keep their bare names.  Every section that can
+    reference either (equalities, contacts, sensors, body overrides) shares this
+    one rule so a config author never has to spell the prefix.  Raises with a
+    "did you mean" list when neither form exists -- assist_sim errors, never
+    warns.
+    """
+    finder_attr, _, collection_attr = _TARGET_KINDS[kind]
+    finder = getattr(spec, finder_attr)
+    if finder(name) is not None:
+        return name
+    prefixed = prefix + name
+    if prefix and finder(prefixed) is not None:
+        return prefixed
+    available = [e.name for e in getattr(spec, collection_attr) if e.name]
+    raise unknown_reference(name, available, section=section, kind=kind)
+
+
+class ModelCombiner:
+    """Combines a musculoskeletal ``MjSpec`` with a device model using mjSpec.
+
+    Removals run in-memory via ``spec.delete`` (needs ``mujoco>=3.4``, the package floor);
+    everything else is additive / in-place.
+    """
+
+    def combine(
+        self,
+        human_spec: mj.MjSpec,
+        device_config: DeviceConfig,
+        export_xml: Optional[str] = None,
+        msk_key: Optional[str] = None,
+        keep_temp: bool = False,
+        planar_root: bool = False,
+    ) -> Tuple[mj.MjModel, mj.MjData]:
+        """Combine a human musculoskeletal ``MjSpec`` with a device.
+
+        Args:
+            human_spec: The baseline musculoskeletal model as an editable
+                ``MjSpec`` (composed by myo_sim, or loaded from an XML path).
+                It is mutated in place -- pass a fresh spec per call.
+            device_config: Loaded DeviceConfig describing the device.
+            export_xml: If provided, save the combined model XML to this path.
+            msk_key: Optional MSK key for per-MSK config overrides.
+            keep_temp: If True, leave the device temp files on disk (debug aid).
+            planar_root: CO-only. Re-orient a freejoint 3D-lineage leg MSK to the
+                ``myolegs22`` frame and swap the freejoint for the named pelvis
+                DOF joints (see :mod:`assist_sim.root_frame`). No-op on the planar
+                ``myolegs22``. Leave False for RL (keeps the floating freejoint).
+
+        Returns:
+            Tuple of (MjModel, MjData) ready for simulation.
+        """
+        device_xml = str(device_config.model_xml_path)
+        prefix = device_config.name + "_"
+
+        # Decompose source keyframes by joint name *before* surgery (which
+        # changes nq/nv), then blank their qpos/qvel so the stale-length arrays
+        # can't block a recompile (empty -> compiles at qpos0).  They are
+        # rebuilt by name, in place, after the final compile.  (MjSpec.delete
+        # does not accept keyframes, so we clear rather than remove.)
+        parsed_keyframes = self._decompose_keyframes(human_spec)
+        for key in human_spec.keys:
+            key.qpos = []
+            key.qvel = []
+
+        # CO-only frame reconciliation: align a freejoint 3D-lineage leg MSK to
+        # the myolegs22 frame + named planar root (a rigid yaw about vertical plus
+        # a freejoint -> named-DOF swap) so the reflex controller -- calibrated to
+        # the 2D frame -- can drive it.  No-op on the planar myolegs22; RL never
+        # sets this, so its floating-base models are unchanged.  Runs before the
+        # surgery/attachments (all name-based, frame-independent) and before the
+        # keyframe rebuild (which then restores pelvis_ty/pelvis_tilt by name).
+        if planar_root:
+            from .root_frame import to_planar_root
+
+            to_planar_root(human_spec)
+
+        # Re-anchor before surgery: a muscle the amputation preserves has to be
+        # moved onto the residual bone while its wrap sites still exist.
+        self._apply_tendon_modifications(human_spec, device_config, msk_key)
+
+        # Surgery: all removals happen here, in-memory.
+        self._apply_removals(human_spec, device_config, msk_key)
+
+        # Register each staged file the moment it exists: building the list
+        # after both calls would leak the first copy if the second one raised.
+        temps: list[str] = []
+
+        try:
+            device_full = prepare_device_xml(device_xml, strip_meshes=False)
+            temps.append(device_full)
+            device_stripped = prepare_device_xml(device_xml, strip_meshes=True)
+            temps.append(device_stripped)
+
+            device_full_spec = mj.MjSpec.from_file(device_full)
+            device_stripped_spec = mj.MjSpec.from_file(device_stripped)
+
+            self._attach_bodies(
+                human_spec,
+                device_full_spec,
+                device_stripped_spec,
+                device_config,
+                prefix,
+                msk_key=msk_key,
+            )
+            self._replace_meshes(human_spec, device_config, prefix, msk_key)
+            self._apply_body_overrides(human_spec, device_config, prefix, msk_key)
+            self._apply_actuator_overrides(human_spec, device_config, prefix, msk_key)
+            self._apply_joint_overrides(human_spec, device_config, msk_key)
+            self._add_actuators(human_spec, device_config, prefix)
+            self._import_device_tendons_actuators(human_spec, device_xml, prefix)
+            self._add_equalities(human_spec, device_config, prefix, msk_key)
+            self._add_contacts(human_spec, device_config, prefix, msk_key)
+            self._add_sensors(human_spec, device_config, prefix, msk_key)
+
+            # First compile gives the final qpos/dof layout used to rebuild
+            # keyframes by joint name.
+            model = human_spec.compile()
+            self._rebuild_keyframes(human_spec, model, parsed_keyframes, device_config, prefix, msk_key)
+            model = human_spec.compile()
+            data = mj.MjData(model)
+
+            if export_xml:
+                from .utils import export_combined_xml
+
+                mesh_dirs = [
+                    (Path(human_spec.modelfiledir), getattr(human_spec, "meshdir", "") or ""),
+                    (Path(device_full_spec.modelfiledir), getattr(device_full_spec, "meshdir", "") or ""),
+                ]
+                export_combined_xml(human_spec, export_xml, mesh_dirs=mesh_dirs)
+
+            return model, data
+        finally:
+            if not keep_temp:
+                for t in temps:
+                    Path(t).unlink(missing_ok=True)
+
+    # ------------------------------------------------------------------
+    # Surgery (in-memory removals via spec.delete)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _apply_removals(
+        human_spec: mj.MjSpec,
+        config: DeviceConfig,
+        msk_key: Optional[str] = None,
+    ) -> None:
+        """Apply every YAML-declared removal to the spec via ``spec.delete``.
+
+        ``spec.delete(body)`` cascades: the whole subtree plus every element
+        that references it (sensors, equality, contact pairs, and the
+        actuators/tendons whose sites lived on removed bodies).  Body and geom
+        removals therefore target the *primary* surgery objects and raise on an
+        unknown name; actuator/tendon removals are best-effort ("delete if
+        present") because the body cascade may already have removed them.
+        """
+        for name in config.resolve_body_removals(msk_key):
+            body = human_spec.body(name)
+            if body is None:
+                raise unknown_reference(name, [b.name for b in human_spec.bodies], section="body_removals", kind="body")
+            human_spec.delete(body)
+
+        for name in config.resolve_geom_removals(msk_key):
+            geom = human_spec.geom(name)
+            if geom is None:
+                available = [g.name for g in human_spec.geoms if g.name]
+                raise unknown_reference(name, available, section="geom_removals", kind="geom")
+            human_spec.delete(geom)
+
+        # spec.delete cascades subtrees + sensors/actuators/tendons, but NOT the
+        # contact <pair>s that reference a removed geom by name -- scrub those so
+        # they don't dangle at compile.
+        surviving_geoms = {g.name for g in human_spec.geoms if g.name}
+        for pair in list(human_spec.pairs):
+            if pair.geomname1 not in surviving_geoms or pair.geomname2 not in surviving_geoms:
+                human_spec.delete(pair)
+
+        # Best-effort: the body cascade above may already have removed these.
+        for name in config.resolve_actuator_removals(msk_key):
+            act = human_spec.actuator(name)
+            if act is not None:
+                human_spec.delete(act)
+
+        for name in config.resolve_tendon_removals(msk_key):
+            tendon = human_spec.tendon(name)
+            if tendon is not None:
+                human_spec.delete(tendon)
+
+        # Sensor removals are how a sensor gets re-pointed: dropped here, then
+        # re-declared in ``sensors:`` against a device element.  Best-effort like
+        # the two above, since the body cascade may already have taken it.
+        removals = set(config.resolve_sensor_removals(msk_key))
+        if removals:
+            for sensor in list(human_spec.sensors):
+                if sensor.name in removals:
+                    human_spec.delete(sensor)
+
+    # ------------------------------------------------------------------
+    # Surgical re-anchoring (runs before the removals)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _apply_tendon_modifications(
+        human_spec: mj.MjSpec,
+        config: DeviceConfig,
+        msk_key: Optional[str] = None,
+    ) -> None:
+        """Re-anchor muscle wrap sites onto the residual limb.
+
+        This is the myodesis/myoplasty step.  A biarticular muscle -- ``rect_fem``
+        and ``hamstrings`` across a transfemoral amputation, ``gastroc`` across a
+        transtibial one -- is preserved in surgery and re-attached to the residual
+        bone, where it goes on acting at the joint that survives.  Left alone it
+        would instead be destroyed by the ``spec.delete`` cascade, because its
+        distal wrap sites sit on bodies the amputation removes.  Hence the
+        ordering: this runs *before* ``_apply_removals``.
+
+        ``MjsTendon`` exposes no readable wrap list, but none is needed: a wrap
+        stores its site or geom by *name* and resolves it at compile, so moving
+        the named element moves the wrap.  Geoms matter as well as sites -- the
+        80-muscle hamstrings cross condylar wrap cylinders, and one left on a
+        doomed body cascades the tendon away however many sites moved.
+
+        Editing elements rather than rebuilding tendons also keeps tendon and
+        actuator objects in place, preserving ``ctrl`` ordering.
+        """
+        for mod in config.resolve_tendon_modifications(msk_key):
+            if human_spec.tendon(mod.name) is None:
+                available = [t.name for t in human_spec.tendons if t.name]
+                raise unknown_reference(mod.name, available, section="tendon_modifications", kind="tendon")
+
+            for edit in mod.wraps:
+                finder, collection, _, _ = _REANCHOR_KINDS[edit.kind]
+                element = getattr(human_spec, finder)(edit.target)
+                if element is None:
+                    available = [e.name for e in getattr(human_spec, collection) if e.name]
+                    raise unknown_reference(edit.target, available, section="tendon_modifications", kind=edit.kind)
+
+                if edit.op.startswith("reposition_"):
+                    element.pos = [float(v) for v in edit.pos]
+                    continue
+
+                body = human_spec.body(edit.new_body)
+                if body is None:
+                    raise unknown_reference(
+                        edit.new_body,
+                        [b.name for b in human_spec.bodies],
+                        section="tendon_modifications.new_body",
+                        kind="body",
+                    )
+                ModelCombiner._reanchor_element(human_spec, element, body, edit.pos, edit.kind)
+
+    @staticmethod
+    def _reanchor_element(human_spec: mj.MjSpec, element, body, pos, kind: str) -> None:
+        """Move *element* onto *body* at *pos*, keeping its name (and its wraps).
+
+        MjSpec cannot reparent a site or geom, so build the replacement under a
+        placeholder name, delete the original, then take the freed name.  Wraps,
+        sensors and equalities resolve names at compile, so they follow.  The
+        replacement inherits the original's class and attributes.
+        """
+        _, _, adder, attrs = _REANCHOR_KINDS[kind]
+        name = element.name
+        replacement = getattr(body, adder)(name=_REANCHOR_TMP_NAME, pos=[float(v) for v in pos])
+        if element.classname:
+            replacement.classname = element.classname
+        for attr in attrs:
+            setattr(replacement, attr, getattr(element, attr))
+        human_spec.delete(element)
+        replacement.name = name
+
+    # ------------------------------------------------------------------
+    # Keyframes
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _decompose_keyframes(human_spec: mj.MjSpec) -> Dict[str, KeyframeData]:
+        """Split each keyframe's qpos/qvel into per-joint slices, keyed by joint
+        name, so authored values survive surgery that changes the qpos layout.
+
+        Compiles a *copy* (pre-surgery) to read the keyframe arrays and the joint layout;
+        returns ``{keyframe_name: KeyframeData}``.
+
+        The copy matters.  Compiling the working spec and then editing it corrupts
+        subsequent add/delete pairs -- measured on mujoco 3.4 and 3.11: after a compile, the
+        sequence "add three joints, then delete four others" loses one of the added joints
+        and leaves one of the delete targets in place, because a delete resolves to the
+        wrong element.  ``reduce_legs`` documents the same hazard and probes a copy for
+        exactly this reason.  No shipped combination trips it today (the add-then-delete the
+        pipeline performs after this point, in ``_reanchor_element``, moves sites and geoms
+        rather than joints), but it is one config away from mattering, so do not compile the
+        live spec here.
+        """
+        if not human_spec.keys:
+            return {}
+        model = human_spec.copy().compile()
+        result: Dict[str, KeyframeData] = {}
+        for key in human_spec.keys:
+            kid = mj.mj_name2id(model, mj.mjtObj.mjOBJ_KEY, key.name)
+            if kid < 0:
+                continue
+            qpos = list(model.key_qpos[kid])
+            qvel = list(model.key_qvel[kid])
+            data = KeyframeData(time=float(model.key_time[kid]))
+            for j in range(model.njnt):
+                jname = model.joint(j).name
+                if not jname:
+                    continue
+                jtype = mj.mjtJoint(int(model.jnt_type[j]))
+                qadr, dadr = int(model.jnt_qposadr[j]), int(model.jnt_dofadr[j])
+                data.qpos_by_joint[jname] = qpos[qadr : qadr + _QPOS_WIDTH[jtype]]
+                data.qvel_by_joint[jname] = qvel[dadr : dadr + _QVEL_WIDTH[jtype]]
+            result[key.name] = data
+        return result
+
+    # ------------------------------------------------------------------
+    # Attachment
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _attach_bodies(
+        human_spec: mj.MjSpec,
+        device_full_spec: mj.MjSpec,
+        device_stripped_spec: mj.MjSpec,
+        config: DeviceConfig,
+        prefix: str,
+        msk_key: Optional[str] = None,
+    ) -> None:
+        """Attach each device body to its human parent body.
+
+        The first attach uses the full device spec, which copies the entire
+        device asset library (meshes, defaults) into the human spec with the
+        namespace prefix.  Every subsequent attach uses a mesh-stripped device
+        spec so duplicate meshes are not re-added -- the device geoms still
+        resolve to the already-copied prefixed meshes.  This replaces the 3.5+
+        "delete device meshes after first attach" trick.
+        """
+        human_spec.copy_during_attach = True
+
+        attachments = config.resolve_attachments(msk_key)
+        for i, att in enumerate(attachments):
+            # ``parent_body: world`` grafts a free-rooted device body (its own
+            # <freejoint>) directly under worldbody -- used by constraint-clamped
+            # devices whose parts float and are tied to the leg via <equality>
+            # rather than rigidly re-parented onto a human body.
+            if att.parent_body.lower() in _WORLD_PARENTS:
+                parent_body = human_spec.worldbody
+            else:
+                parent_body = human_spec.body(att.parent_body)
+            if parent_body is None:
+                raise unknown_reference(
+                    att.parent_body,
+                    [b.name for b in human_spec.bodies],
+                    section="attachments.parent_body",
+                    kind="body",
+                )
+
+            src_spec = device_full_spec if i == 0 else device_stripped_spec
+            device_body = src_spec.body(att.device_body)
+            if device_body is None:
+                raise unknown_reference(
+                    att.device_body,
+                    [b.name for b in device_full_spec.bodies],
+                    section="attachments.device_body",
+                    kind="device body",
+                )
+
+            frame = ModelCombiner._make_frame(parent_body, att)
+            frame.attach_body(device_body, prefix=prefix)
+
+    @staticmethod
+    def _make_frame(parent_body, att):
+        """Create an attachment frame, with optional pose offset (phase 05)."""
+        kwargs = {}
+        if getattr(att, "pos", None) is not None:
+            kwargs["pos"] = att.pos
+        if getattr(att, "quat", None) is not None:
+            kwargs["quat"] = att.quat
+        return parent_body.add_frame(**kwargs)
+
+    @staticmethod
+    def _replace_meshes(
+        human_spec: mj.MjSpec,
+        config: DeviceConfig,
+        prefix: str,
+        msk_key: Optional[str] = None,
+    ) -> None:
+        """Swap a geom's mesh reference to a device-provided replacement mesh."""
+        for mr in config.resolve_mesh_replacements(msk_key):
+            geom = human_spec.geom(mr.geom)
+            if geom is None:
+                raise unknown_reference(
+                    mr.geom,
+                    [g.name for g in human_spec.geoms],
+                    section="mesh_replacements",
+                    kind="geom",
+                )
+            geom.meshname = prefix + mr.mesh
+
+    @staticmethod
+    def _apply_joint_overrides(
+        human_spec: mj.MjSpec,
+        config: DeviceConfig,
+        msk_key: Optional[str] = None,
+    ) -> None:
+        """Override joint properties (range, damping, axis, pos) on the human model.
+
+        ``axis`` and ``pos`` re-site the joint itself.  A rigid single-plane
+        linkage can only be coaxial with a single-axis joint, so a device that
+        spans one may need to declare the axis it assumes -- though realigning the
+        *device* onto the model's existing axis (via a per-MSK attachment quat)
+        leaves the anatomy alone and is usually the better trade.
+        """
+        for override in config.resolve_joint_overrides(msk_key):
+            joint = human_spec.joint(override.name)
+            if joint is None:
+                raise unknown_reference(
+                    override.name,
+                    [j.name for j in human_spec.joints],
+                    section="joint_overrides",
+                    kind="joint",
+                )
+            if override.range is not None:
+                joint.range = override.range
+            if override.axis is not None:
+                joint.axis = [float(v) for v in override.axis]
+            if override.pos is not None:
+                joint.pos = [float(v) for v in override.pos]
+            if override.damping is not None:
+                # MjsJoint.damping is a scalar on mujoco 3.3.4 but a fixed-width
+                # vector on some newer builds -- handle both (index 0 is the
+                # scalar joint damping in the vector form).
+                try:
+                    joint.damping = override.damping
+                except (TypeError, ValueError):
+                    damping = list(joint.damping)
+                    damping[0] = override.damping
+                    joint.damping = damping
+
+    @staticmethod
+    def _add_actuators(
+        human_spec: mj.MjSpec,
+        config: DeviceConfig,
+        prefix: str = "",
+    ) -> None:
+        """Add device actuators to the combined spec (auto-prefix device joints)."""
+        for act_def in config.actuators:
+            kwargs = _build_actuator_kwargs(act_def, human_spec, prefix)
+            human_spec.add_actuator(**kwargs)
+
+    # ------------------------------------------------------------------
+    # Body inertial overrides
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _apply_body_overrides(
+        human_spec: mj.MjSpec,
+        config: DeviceConfig,
+        prefix: str,
+        msk_key: Optional[str] = None,
+    ) -> None:
+        """Override the inertial properties of bodies in the combined model.
+
+        The motivating case is prosthetic surgery: removing ``talus_r`` and below
+        leaves ``tibia_r`` still carrying the *intact* shank's mass, so the
+        residual limb has to be reduced explicitly -- MuJoCo has no notion that
+        the segment was transected.
+
+        Setting mass without an inertia on a body whose inertia the compiler
+        derives from geoms would silently zero that inertia, so that combination
+        raises instead.
+        """
+        for override in config.resolve_body_overrides(msk_key):
+            name = _resolve_element_name(human_spec, "body", override.name, prefix, "body_overrides")
+            body = human_spec.body(name)
+
+            gives_inertia = override.diaginertia is not None or override.fullinertia is not None
+            if not gives_inertia and not body.explicitinertial:
+                raise ValueError(
+                    f"body_overrides entry '{override.name}' sets mass/frame on a body whose inertia "
+                    f"MuJoCo derives from its geoms. Marking it explicit would zero that inertia -- "
+                    f"supply 'diaginertia' (or 'fullinertia') as well."
+                )
+
+            if override.mass is not None:
+                body.mass = float(override.mass)
+            if override.diaginertia is not None:
+                body.inertia = [float(v) for v in override.diaginertia]
+            if override.fullinertia is not None:
+                body.fullinertia = [float(v) for v in override.fullinertia]
+            if override.ipos is not None:
+                body.ipos = [float(v) for v in override.ipos]
+            if override.iquat is not None:
+                body.iquat = [float(v) for v in override.iquat]
+            body.explicitinertial = True
+
+    @staticmethod
+    def _apply_actuator_overrides(
+        human_spec: mj.MjSpec,
+        config: DeviceConfig,
+        prefix: str,
+        msk_key: Optional[str] = None,
+    ) -> None:
+        """Override actuator properties on the combined model.
+
+        A re-anchored muscle's ``lengthrange`` still describes the intact path,
+        and the compiler will not re-derive it (``LRopt.useexisting`` is 1).
+        Runs after surgery, so it can name an actuator that only survives
+        because it was re-anchored.
+        """
+        for override in config.resolve_actuator_overrides(msk_key):
+            name = _resolve_element_name(human_spec, "actuator", override.name, prefix, "actuator_overrides")
+            actuator = human_spec.actuator(name)
+            if override.lengthrange is not None:
+                actuator.lengthrange = [float(v) for v in override.lengthrange]
+
+    # ------------------------------------------------------------------
+    # Contacts (excludes + explicit pairs)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _add_contacts(
+        human_spec: mj.MjSpec,
+        config: DeviceConfig,
+        prefix: str,
+        msk_key: Optional[str] = None,
+    ) -> None:
+        """Emit ``<contact>`` excludes and explicit pairs onto the combined spec.
+
+        Runs after attachment so device bodies / geoms exist to reference.
+        Device-XML ``<contact>`` sections do **not** migrate through
+        ``attach_body`` (it copies a body subtree, not top-level sections), which
+        is why these are authored in YAML against the combined model.
+
+        Pairs are emitted before excludes purely for readability of the output; the order
+        carries no meaning to MuJoCo.
+
+        An ``<exclude>`` does **not** cancel a ``<pair>``.  They act on different stages: a
+        predefined pair is always evaluated, while an exclude only filters the body pairs
+        that the broadphase would otherwise generate.  Measured on mujoco 3.4 and 3.11 --
+        two bodies with an explicit pair between their geoms give ``ncon=1`` whether or not
+        an exclude names those bodies.  (This docstring used to claim the opposite.)
+        """
+        for pair_def in config.resolve_contact_pairs(msk_key):
+            g1 = _resolve_element_name(human_spec, "geom", pair_def.geom1, prefix, "contact.pairs")
+            g2 = _resolve_element_name(human_spec, "geom", pair_def.geom2, prefix, "contact.pairs")
+            pair = human_spec.add_pair()
+            pair.geomname1 = g1
+            pair.geomname2 = g2
+            if pair_def.condim is not None:
+                pair.condim = int(pair_def.condim)
+            if pair_def.margin is not None:
+                pair.margin = float(pair_def.margin)
+            if pair_def.gap is not None:
+                pair.gap = float(pair_def.gap)
+            if pair_def.friction is not None:
+                pair.friction = _pad([float(v) for v in pair_def.friction], 5)
+            if pair_def.solref is not None:
+                pair.solref = pair_def.solref
+            if pair_def.solimp is not None:
+                pair.solimp = pair_def.solimp
+
+        for exc_def in config.resolve_contact_excludes(msk_key):
+            b1 = _resolve_element_name(human_spec, "body", exc_def.body1, prefix, "contact.excludes")
+            b2 = _resolve_element_name(human_spec, "body", exc_def.body2, prefix, "contact.excludes")
+            exclude = human_spec.add_exclude()
+            exclude.bodyname1 = b1
+            exclude.bodyname2 = b2
+
+    # ------------------------------------------------------------------
+    # Sensors
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _add_sensors(
+        human_spec: mj.MjSpec,
+        config: DeviceConfig,
+        prefix: str,
+        msk_key: Optional[str] = None,
+    ) -> None:
+        """Add device sensors to the combined spec.
+
+        Runs after attachment so device sites / joints exist.  Sensors are
+        appended, so a backfilled sensor lands after the baseline's survivors and
+        the combined ``sensordata`` layout differs from the baseline's -- consumers
+        must index by name.
+        """
+        for sensor_def in config.resolve_sensors(msk_key):
+            enum_name, _ = _SENSOR_TYPES[sensor_def.type]
+            kind = sensor_def.target_kind
+            target = _resolve_element_name(human_spec, kind, sensor_def.target, prefix, "sensors")
+
+            sensor = human_spec.add_sensor()
+            sensor.name = sensor_def.name
+            sensor.type = getattr(mj.mjtSensor, enum_name)
+            sensor.objtype = _TARGET_KINDS[kind][1]
+            sensor.objname = target
+            if sensor_def.cutoff is not None:
+                sensor.cutoff = float(sensor_def.cutoff)
+            if sensor_def.noise is not None:
+                sensor.noise = float(sensor_def.noise)
+
+    # ------------------------------------------------------------------
+    # Equality constraints (device body <-> human body)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _add_equalities(
+        human_spec: mj.MjSpec,
+        config: DeviceConfig,
+        prefix: str,
+        msk_key: Optional[str] = None,
+    ) -> None:
+        """Emit device<->human equality constraints onto the combined spec.
+
+        Runs after attachment so both endpoints already exist in ``human_spec``:
+        device elements are namespaced with the device prefix, human ones are
+        bare.  Two roles:
+
+        - Body-to-body (``connect`` / ``weld``) ties a free-rooted device
+          (attached to worldbody) to the leg -- e.g. an exo clamped at the
+          calcaneus, talus and tibia.
+        - Joint-to-joint (``joint``) closes a kinematic loop the body tree cannot
+          express, and couples a device linkage to the biological joint it spans.
+          Device-XML ``<equality>`` sections do not migrate through
+          ``attach_body``, so a closed-chain device declares its couplings here.
+        """
+        for eq_def in config.resolve_equalities(msk_key):
+            eq = human_spec.add_equality()
+            eq.type = _EQTYPE_MAP[eq_def.type]
+            eq.active = bool(eq_def.active)
+
+            if eq_def.type == "joint":
+                eq.objtype = mj.mjtObj.mjOBJ_JOINT
+                eq.name1 = _resolve_element_name(human_spec, "joint", eq_def.joint1, prefix, "equality.joint1")
+                # An omitted joint2 pins joint1 to the constant in polycoef[0].
+                eq.name2 = (
+                    _resolve_element_name(human_spec, "joint", eq_def.joint2, prefix, "equality.joint2")
+                    if eq_def.joint2
+                    else ""
+                )
+            else:
+                eq.objtype = mj.mjtObj.mjOBJ_BODY
+                eq.name1 = _resolve_element_name(human_spec, "body", eq_def.device_body, prefix, "equality.device_body")
+                eq.name2 = _resolve_element_name(human_spec, "body", eq_def.parent_body, prefix, "equality.parent_body")
+
+            eq.data = _equality_data(eq_def)
+            if eq_def.solref is not None:
+                eq.solref = eq_def.solref
+            if eq_def.solimp is not None:
+                eq.solimp = eq_def.solimp
+
+    # ------------------------------------------------------------------
+    # Device-side tendon + tendon-transmission actuator import
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _import_device_tendons_actuators(
+        human_spec: mj.MjSpec,
+        device_xml_path: str,
+        prefix: str,
+    ) -> None:
+        """Copy ``<tendon>/<spatial>`` and tendon-driven ``<actuator>`` entries
+        from the device XML into the human spec, with name + site prefixed.
+
+        ``MjSpec.attach_body`` only copies the body subtree (and its referenced
+        assets) -- top-level tendon and actuator sections do not migrate.  This
+        routine reads them from the device XML directly and re-creates each
+        spatial tendon (with all attributes) plus any actuator whose
+        ``tendon=`` references it.  Joint-transmission actuators are authored
+        in YAML and skipped here.
+        """
+        tree = ET.parse(device_xml_path)
+        root = tree.getroot()
+
+        tendon_root = root.find("tendon")
+        if tendon_root is not None:
+            for elem in tendon_root:
+                if elem.tag not in ("spatial", "fixed"):
+                    raise ValueError(
+                        f"{Path(device_xml_path).name}: unsupported <tendon> child <{elem.tag}>; expected 'spatial' or 'fixed'."
+                    )
+                src_name = elem.get("name", "")
+                if not src_name:
+                    raise ValueError(
+                        f"{Path(device_xml_path).name}: a <{elem.tag}> tendon has no 'name', so nothing "
+                        f"can reference it once prefixed. Name every device tendon."
+                    )
+                tendon = human_spec.add_tendon(name=prefix + src_name)
+                _apply_tendon_attrs(tendon, elem, spatial=elem.tag == "spatial")
+                _import_tendon_wraps(tendon, elem, prefix, Path(device_xml_path).name)
+
+        actuator_root = root.find("actuator")
+        if actuator_root is not None:
+            for act in actuator_root:
+                tendon_target = act.get("tendon")
+                if not tendon_target:
+                    continue  # joint-transmission actuators belong in YAML
+                kwargs = _xml_actuator_kwargs(act, prefix)
+                human_spec.add_actuator(**kwargs)
+
+    # ------------------------------------------------------------------
+    # Keyframes (rebuilt after compile, by joint name)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _rebuild_keyframes(
+        human_spec: mj.MjSpec,
+        model: mj.MjModel,
+        parsed_keyframes,
+        config: DeviceConfig,
+        prefix: str,
+        msk_key: Optional[str],
+    ) -> None:
+        """Re-add keyframes to the spec using the final compiled layout.
+
+        Surviving joints are restored to their authored values by name;
+        device-added joints take their model default (``qpos0``); then
+        ``keyframe_overrides`` are applied on top.  This preserves pose
+        fidelity across body removals without depending on array length.
+
+        The spec's source keyframes were blanked (``key.qpos = []``) before
+        surgery rather than deleted (``MjSpec.delete`` does not accept keys), so
+        those pre-existing keys are *repurposed* here to host the first rebuilt
+        keyframes -- which also avoids emitting a stray empty key.
+        """
+        # A small emitter that reuses pre-existing (empty) keys before adding.
+        existing_keys = list(human_spec.keys)
+        cursor = {"i": 0}
+
+        def emit(name: str, time: float, qpos, qvel) -> None:
+            if cursor["i"] < len(existing_keys):
+                key = existing_keys[cursor["i"]]
+                key.name = name
+                key.time = time
+                key.qpos = qpos
+                key.qvel = qvel
+                cursor["i"] += 1
+            else:
+                human_spec.add_key(name=name, time=time, qpos=qpos, qvel=qvel)
+
+        # Legacy full-array mode: explicit qpos/qvel arrays per keyframe.
+        if config.keyframes and not config.keyframe_overrides:
+            has_full = any(kf.qpos is not None for kf in config.keyframes.values())
+            if has_full:
+                for kf_name, kf_def in config.keyframes.items():
+                    if kf_def.qpos is None:
+                        continue
+                    qvel = kf_def.qvel if kf_def.qvel is not None else [0.0] * model.nv
+                    emit(kf_name, kf_def.time, kf_def.qpos, qvel)
+                return
+
+        if not parsed_keyframes:
+            # The base MSK shipped no keyframes (e.g. the 3D-lineage myolegs26 or
+            # the 80-muscle myolegs).  Fall back to the canonical leg keyframes so
+            # the standard poses exist.  They are applied by joint name, so a
+            # freejoint-root model just takes the shared hinge angles and keeps its
+            # root / frontal DOFs at qpos0 (height re-seated downstream).  Only
+            # inject on a leg model, never on a non-leg MSK.
+            if mj.mj_name2id(model, mj.mjtObj.mjOBJ_JOINT, LEG_SENTINEL_JOINT) < 0:
+                return
+            # The 80-muscle gait2392 knee flexes positive (range ``[0, +pi]``) while
+            # the myoLeg knee flexes negative; the shared canonical angles are
+            # authored myoLeg-negative, so flip them for a positive-convention knee
+            # (else a walk pose lands below the knee's range and a squat folds over).
+            #
+            # Probe every knee, not just the right one: a transfemoral amputation
+            # deletes the operated side's knee, so reading only ``knee_angle_r`` on an
+            # amputee config finds it absent, skips the flip, and hyperextends the
+            # *intact* left knee on the 80-muscle lineage.  The first surviving knee
+            # decides -- both sides share one convention within a model.
+            knee_positive = False
+            for knee in KNEE_JOINTS:
+                knee_jid = mj.mj_name2id(model, mj.mjtObj.mjOBJ_JOINT, knee)
+                if knee_jid >= 0 and model.jnt_limited[knee_jid]:
+                    knee_positive = bool(model.jnt_range[knee_jid][1] > abs(model.jnt_range[knee_jid][0]))
+                    break
+            parsed_keyframes = canonical_leg_keyframes(knee_sign=-1.0 if knee_positive else 1.0)
+
+        overrides = config.resolve_keyframe_overrides(msk_key)
+
+        # A keyframe *name* that does not exist is unambiguously a typo: the pose names
+        # come from the base MSK or the canonical set, and are the same across every leg
+        # lineage.  Raise, so `stannd:` cannot sit in a config doing nothing.
+        #
+        # The joint names *inside* an override stay lenient on purpose -- lineages differ
+        # (a freejoint-rooted MSK has no pelvis_ty), so a skipped joint is expected rather
+        # than wrong.  That leniency is what hides a misspelled joint, so the static
+        # checker in `validate.py` is where a joint typo should be caught.
+        unknown_kf = sorted(set(overrides) - set(parsed_keyframes))
+        if unknown_kf:
+            raise unknown_reference(
+                unknown_kf[0],
+                sorted(parsed_keyframes),
+                section="keyframe_overrides",
+                kind="keyframe",
+            )
+
+        for kf_name, kf_data in parsed_keyframes.items():
+            qpos = list(model.qpos0)
+            qvel = [0.0] * model.nv
+
+            ModelCombiner._restore_joint_slices(model, kf_data.qpos_by_joint, qpos, model.jnt_qposadr)
+            ModelCombiner._restore_joint_slices(model, kf_data.qvel_by_joint, qvel, model.jnt_dofadr)
+
+            override = overrides.get(kf_name)
+            if override is not None:
+                ModelCombiner._apply_overrides(model, override, prefix, qpos)
+
+            emit(kf_name, kf_data.time, qpos, qvel)
+
+    @staticmethod
+    def _restore_joint_slices(model, by_joint, target, adr_array) -> None:
+        """Write each named joint's stored slice into the target array."""
+        limit = len(target)
+        for joint_name, values in by_joint.items():
+            jid = mj.mj_name2id(model, mj.mjtObj.mjOBJ_JOINT, joint_name)
+            if jid < 0:
+                continue  # joint was removed; nothing to restore
+            start = int(adr_array[jid])
+            for k, v in enumerate(values):
+                if start + k < limit:
+                    target[start + k] = v
+
+    @staticmethod
+    def _apply_overrides(model, override, prefix, qpos) -> None:
+        """Apply per-joint keyframe overrides onto a qpos vector."""
+        for joint_name, value in override.joint_values.items():
+            jid = mj.mj_name2id(model, mj.mjtObj.mjOBJ_JOINT, joint_name)
+            if jid < 0 and prefix:
+                jid = mj.mj_name2id(model, mj.mjtObj.mjOBJ_JOINT, prefix + joint_name)
+            if jid < 0:
+                # MSKs differ (e.g. myolegs has freejoint root, not pelvis_ty).
+                continue
+            qpos[int(model.jnt_qposadr[jid])] = value
+
+
+def _equality_data(eq_def: EqualityConstraint) -> list:
+    """Build the 11-wide MuJoCo ``eq_data`` array for a constraint def.
+
+    - ``connect``: ``data[0:3]`` is the anchor (in the device body's frame).
+    - ``weld``: ``data[0:3]`` anchor, ``data[3:10]`` relpose (pos + quat,
+      identity quat by default), ``data[10]`` torquescale (1.0 by default).
+    - ``joint``: ``data[0:5]`` are the quartic polycoef; unspecified trailing
+      coefficients are zero.  An all-zero polycoef with no ``joint2`` pins the
+      joint to zero, which is a legitimate (if blunt) way to lock a DOF.
+    """
+    data = [0.0] * 11
+    if eq_def.type == "joint":
+        if eq_def.polycoef is not None:
+            for i, v in enumerate(eq_def.polycoef[:5]):
+                data[i] = float(v)
+        return data
+    if eq_def.anchor is not None:
+        for i, v in enumerate(eq_def.anchor[:3]):
+            data[i] = float(v)
+    if eq_def.type == "weld":
+        relpose = eq_def.relpose if eq_def.relpose is not None else [0, 0, 0, 1, 0, 0, 0]
+        for i, v in enumerate(relpose[:7]):
+            data[3 + i] = float(v)
+        data[10] = float(eq_def.torquescale) if eq_def.torquescale is not None else 1.0
+    return data
+
+
+def _pad(values: list, size: int) -> list:
+    """Pad a list with zeros to the required MuJoCo array size."""
+    if len(values) >= size:
+        return values[:size]
+    return values + [0.0] * (size - len(values))
+
+
+def _floats(text: Optional[str]) -> Optional[List[float]]:
+    """Parse a whitespace-separated float list ('0 0 0.5') or None."""
+    if text is None:
+        return None
+    return [float(x) for x in text.split()]
+
+
+def _bool(text: Optional[str]) -> Optional[bool]:
+    if text is None:
+        return None
+    return text.lower() in ("true", "1")
+
+
+def _import_tendon_wraps(tendon, tendon_elem: ET.Element, prefix: str, source: str) -> None:
+    """Recreate every wrap of a device-XML tendon, in document order.
+
+    Wrap order is the tendon's routing, so each child is dispatched in sequence.  All
+    four MJCF wrap kinds are supported, because ``MjsTendon`` exposes all four; an earlier
+    version copied only ``<site>`` wraps and dropped the rest in silence, which changed the
+    tendon's path and length scaling with no error -- a ``<pulley>`` divides the length
+    contribution of everything after it, and a ``<geom>`` wrap bends the path around a
+    cylinder or sphere.
+
+    Names are device-local, so each is prefixed.  An unrecognised child raises rather than
+    being skipped.
+    """
+    for child in tendon_elem:
+        if child.tag == "site":
+            tendon.wrap_site(prefix + child.get("site", ""))
+        elif child.tag == "geom":
+            # sidesite is optional in MJCF; "" means "no side site".
+            sidesite = child.get("sidesite")
+            tendon.wrap_geom(prefix + child.get("geom", ""), prefix + sidesite if sidesite else "")
+        elif child.tag == "pulley":
+            tendon.wrap_pulley(float(child.get("divisor", 1.0)))
+        elif child.tag == "joint":
+            tendon.wrap_joint(prefix + child.get("joint", ""), float(child.get("coef", 1.0)))
+        else:
+            raise ValueError(
+                f"{source}: tendon '{tendon_elem.get('name')}' has an unsupported wrap "
+                f"<{child.tag}>; expected 'site', 'geom', 'pulley' or 'joint'."
+            )
+
+
+def _apply_tendon_attrs(tendon, spatial_elem: ET.Element, spatial: bool = True) -> None:
+    """Copy supported attributes from a device-XML tendon element onto a MjSpec tendon.
+
+    Only attributes that round-trip cleanly via MjSpec properties are set.
+    Unknown attributes are ignored (with no warning) since device authors may
+    use class-driven defaults.
+
+    ``spatial`` selects whether the visual attributes apply.  MJCF accepts ``width`` /
+    ``rgba`` / ``material`` on ``<spatial>`` only, so setting them for a ``<fixed>`` tendon
+    would emit attributes that fail to reload on export.
+    """
+    if spatial:
+        rgba = _floats(spatial_elem.get("rgba"))
+        if rgba is not None and len(rgba) == 4:
+            tendon.rgba = rgba
+
+        width = spatial_elem.get("width")
+        if width is not None:
+            tendon.width = float(width)
+
+    limited = _bool(spatial_elem.get("limited"))
+    if limited is not None:
+        # MjSpec stores limited as int (0/1) on some mujoco versions; assign defensively.
+        try:
+            tendon.limited = mj.mjtLimited.mjLIMITED_TRUE if limited else mj.mjtLimited.mjLIMITED_FALSE
+        except AttributeError:
+            tendon.limited = 1 if limited else 0
+
+    rng = _floats(spatial_elem.get("range"))
+    if rng is not None and len(rng) == 2:
+        tendon.range = rng
+
+    sl = _floats(spatial_elem.get("springlength"))
+    if sl is not None:
+        # springlength may be 1 or 2 floats in XML; MjSpec expects 2.
+        if len(sl) == 1:
+            sl = [sl[0], sl[0]]
+        tendon.springlength = sl
+
+    for attr in ("stiffness", "damping", "frictionloss", "margin"):
+        v = spatial_elem.get(attr)
+        if v is None:
+            continue
+        # These are scalars in MJCF, but MjsTendon widened them to fixed-width
+        # vectors in newer mujoco -- ``stiffness`` became a 3-vector in 3.7, which
+        # made every device with an authored tendon stiffness fail to combine.
+        # Assign the scalar, and on the type error write it into index 0 of the
+        # existing vector (the linear term), leaving the rest at their defaults.
+        # Mirrors the guard _apply_joint_overrides applies to joint damping.
+        try:
+            setattr(tendon, attr, float(v))
+        except (TypeError, ValueError):
+            widened = list(getattr(tendon, attr))
+            widened[0] = float(v)
+            setattr(tendon, attr, widened)
+
+    if spatial:
+        material = spatial_elem.get("material")
+        if material:
+            tendon.material = material
+
+
+def _xml_actuator_kwargs(act_elem: ET.Element, prefix: str) -> dict:
+    """Convert a device-XML <actuator>/<general|motor|...> with tendon target
+    into ``MjSpec.add_actuator`` kwargs (prefixed name + tendon)."""
+    name = act_elem.get("name")
+    if not name:
+        # Without this, the actuator is named exactly the device prefix (e.g. "STRIDE_L2_"),
+        # which no config or controller can address, and a second unnamed one collides.
+        raise ValueError(
+            f"a device tendon actuator (<{act_elem.tag} tendon='{act_elem.get('tendon')}'>) has no "
+            f"'name'. Name it, so the combined model exposes a usable ctrl index."
+        )
+    kwargs: dict = {"name": prefix + name}
+    kwargs["trntype"] = mj.mjtTrn.mjTRN_TENDON
+    kwargs["target"] = prefix + act_elem.get("tendon", "")
+
+    gaintype = act_elem.get("gaintype")
+    if gaintype:
+        enum = _GAINTYPE_MAP.get(gaintype.lower())
+        if enum is not None:
+            kwargs["gaintype"] = enum
+    gainprm = _floats(act_elem.get("gainprm"))
+    if gainprm is not None:
+        kwargs["gainprm"] = _pad(gainprm, 10)
+
+    biastype = act_elem.get("biastype")
+    if biastype:
+        enum = _BIASTYPE_MAP.get(biastype.lower())
+        if enum is not None:
+            kwargs["biastype"] = enum
+    biasprm = _floats(act_elem.get("biasprm"))
+    if biasprm is not None:
+        kwargs["biasprm"] = _pad(biasprm, 10)
+
+    dyntype = act_elem.get("dyntype")
+    if dyntype:
+        enum = _DYNTYPE_MAP.get(dyntype.lower())
+        if enum is not None:
+            kwargs["dyntype"] = enum
+    dynprm = _floats(act_elem.get("dynprm"))
+    if dynprm is not None:
+        kwargs["dynprm"] = _pad(dynprm, 10)
+
+    rng = _floats(act_elem.get("ctrlrange"))
+    if rng is not None and len(rng) == 2:
+        kwargs["ctrlrange"] = rng
+    if _bool(act_elem.get("ctrllimited")):
+        kwargs["ctrllimited"] = 1
+
+    # forcerange clamps in *actuator* space, i.e. before gear is applied -- so a
+    # cable motor with gear="-1" and forcerange="-400 0" silently produces zero
+    # force.  Carry both through rather than dropping them, which used to make a
+    # device's authored force limit vanish on combination.
+    frange = _floats(act_elem.get("forcerange"))
+    if frange is not None and len(frange) == 2:
+        kwargs["forcerange"] = frange
+    if _bool(act_elem.get("forcelimited")):
+        kwargs["forcelimited"] = 1
+
+    gear = _floats(act_elem.get("gear"))
+    if gear is not None:
+        kwargs["gear"] = _pad(gear, 6)
+
+    return kwargs
+
+
+def _build_actuator_kwargs(
+    act_def: ActuatorDef,
+    spec: Optional[mj.MjSpec] = None,
+    prefix: str = "",
+) -> dict:
+    """Convert an ActuatorDef into kwargs for MjSpec.add_actuator().
+
+    When *spec* is given, the joint target is resolved bare-first then device-prefixed --
+    the same rule every other section uses -- and an unresolvable name raises with a
+    "did you mean" list.  Previously it fell through with the bare name and the failure
+    surfaced later as a raw MuJoCo compile error naming neither the section nor the
+    actuator, the one section that did not validate its own reference.
+    """
+    kwargs: dict = {"name": act_def.name}
+
+    target = act_def.joint
+    if spec is not None and spec.joint(target) is None:
+        prefixed = prefix + target
+        if prefix and spec.joint(prefixed) is not None:
+            target = prefixed
+        else:
+            available = [j.name for j in spec.joints if j.name]
+            raise unknown_reference(
+                act_def.joint,
+                available,
+                section=f"actuators[{act_def.name}].joint",
+                kind="joint",
+            )
+
+    kwargs["trntype"] = mj.mjtTrn.mjTRN_JOINT
+    kwargs["target"] = target
+
+    gaintype_enum = _GAINTYPE_MAP.get(act_def.gaintype.lower())
+    if gaintype_enum is not None:
+        kwargs["gaintype"] = gaintype_enum
+    kwargs["gainprm"] = _pad(act_def.gainprm, 10)
+
+    biastype_enum = _BIASTYPE_MAP.get(act_def.biastype.lower())
+    if biastype_enum is not None:
+        kwargs["biastype"] = biastype_enum
+    kwargs["biasprm"] = _pad(act_def.biasprm, 10)
+
+    dyntype_enum = _DYNTYPE_MAP.get(act_def.dyntype.lower())
+    if dyntype_enum is not None:
+        kwargs["dyntype"] = dyntype_enum
+    kwargs["dynprm"] = _pad(act_def.dynprm, 10)
+
+    if act_def.ctrlrange is not None:
+        kwargs["ctrlrange"] = act_def.ctrlrange
+    if act_def.ctrllimited:
+        kwargs["ctrllimited"] = 1
+
+    kwargs["gear"] = _pad(act_def.gear, 6)
+
+    return kwargs

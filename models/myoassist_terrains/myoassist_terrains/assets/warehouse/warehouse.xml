@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mujoco>
+	<size njmax="10000" nconmax="10000"></size>
+
+	<compiler angle="radian" coordinate="local" meshdir="stls/fetch" texturedir="textures"></compiler>
+	<option timestep="0.002" gravity="0 0 -9.8">
+		<flag warmstart="enable"></flag>
+	</option>
+
+	<asset>
+	    <texture type="skybox" builtin="gradient" rgb1="0.44 0.85 0.56" rgb2="0.46 0.87 0.58" width="32" height="32"></texture>
+        <texture name="texture_block" file="block.png" gridsize="3 4" gridlayout=".U..LFRB.D.."></texture>
+        <material name="floor_mat" specular="0" shininess="0.5" reflectance="0" rgba="0.2 0.2 0.2 1"></material>
+        <material name="table_mat" specular="0" shininess="0.5" reflectance="0" rgba="0.93 0.93 0.93 1"></material>
+        <material name="block_mat" specular="0" shininess="0.5" reflectance="0" rgba="0.2 0.2 0.2 1"></material>
+        <material name="shelf_column_black" specular="0" shininess="0.25" reflectance="0" rgba="0.015 0.015 0.015 1"></material>
+        <material name="weight_black" specular="0.1" shininess="0.35" reflectance="0" rgba="0.03 0.03 0.03 1"></material>
+        <material name="puck_mat" specular="0" shininess="0.5" reflectance="0" rgba="0.3 0.2 0.2 1"></material>
+        <texture name="tex-box" file="carton.png"></texture>
+        <material name="carton" reflectance="0.7" texrepeat="5 5" texture="tex-box" texuniform="true"></material>
+        <texture name="tex-box1" file="carton1.png"></texture>
+        <material name="carton1" reflectance="0.7" texrepeat="5 5" texture="tex-box1" texuniform="true"></material>
+        <texture name="tex-box2" file="carton2.png"></texture>
+        <material name="carton2" reflectance="0.7" texrepeat="5 5" texture="tex-box2" texuniform="true"></material>
+        <texture name="tex-box3" file="carton3.png"></texture>
+        <material name="carton3" reflectance="0.7" texrepeat="5 5" texture="tex-box3" texuniform="true"></material>
+        <texture name="tex-box4" file="carton4.png"></texture>
+        <material name="carton4" reflectance="0.7" texrepeat="5 5" texture="tex-box4" texuniform="true"></material>
+        <texture name="tex-box5" file="carton5.png"></texture>
+        <material name="carton5" reflectance="0.7" texrepeat="5 5" texture="tex-box5" texuniform="true"></material>
+    </asset>
+
+	<worldbody>
+
+		<!-- Keep the warehouse ground identical to terrain='flat': horizontal at
+		     z=0 with MuJoCo's standard flat-terrain friction coefficients. -->
+		<geom name="floor0" pos="0 0 0" quat="1 0 0 0" size="25 30 1" type="plane"
+		      condim="3" friction="1 0.005 0.0001" material="floor_mat"></geom>
+		
+		
+
+		<include file="conveyor_belt_layout.xml"></include>
+
+		
+		
+
+		<include file="shelf_movable.xml"></include>
+
+		<!-- Movable dumbbell on the middle conveyor (cb1).  The conveyor top is
+		     z=0.4 after the current warehouse placement. -->
+		<body name="warehouse_dumbbell" pos="2.4 -7 0.5">
+			<joint name="warehouse_dumbbell:joint" type="free" damping="0.02"></joint>
+			<geom name="warehouse_dumbbell_handle" type="cylinder"
+			      pos="0 0 0" quat="0.7071068 0 0.7071068 0"
+			      size="0.025 0.18" mass="0.25" material="weight_black"/>
+			<geom name="warehouse_dumbbell_left_weight" type="cylinder"
+			      pos="-0.22 0 0" quat="0.7071068 0 0.7071068 0"
+			      size="0.1 0.05" mass="1.0" material="weight_black"/>
+			<geom name="warehouse_dumbbell_right_weight" type="cylinder"
+			      pos="0.22 0 0" quat="0.7071068 0 0.7071068 0"
+			      size="0.1 0.05" mass="1.0" material="weight_black"/>
+		</body>
+
+		<!-- Movable barbell resting on the warehouse floor. -->
+		<body name="warehouse_barbell" pos="0 -3.99 0.16">
+			<joint name="warehouse_barbell:joint" type="free" damping="0.02"></joint>
+			<geom name="warehouse_barbell_handle" type="cylinder"
+			      pos="0 0 0" quat="0.7071068 0 0.7071068 0"
+			      size="0.025 0.8" mass="0.6" material="weight_black"/>
+			<geom name="warehouse_barbell_left_inner_plate" type="cylinder"
+			      pos="-0.68 0 0" quat="0.7071068 0 0.7071068 0"
+			      size="0.16 0.06" mass="2.0" material="weight_black"/>
+			<geom name="warehouse_barbell_left_outer_plate" type="cylinder"
+			      pos="-0.84 0 0" quat="0.7071068 0 0.7071068 0"
+			      size="0.13 0.05" mass="1.5" material="weight_black"/>
+			<geom name="warehouse_barbell_right_inner_plate" type="cylinder"
+			      pos="0.68 0 0" quat="0.7071068 0 0.7071068 0"
+			      size="0.16 0.06" mass="2.0" material="weight_black"/>
+			<geom name="warehouse_barbell_right_outer_plate" type="cylinder"
+			      pos="0.84 0 0" quat="0.7071068 0 0.7071068 0"
+			      size="0.13 0.05" mass="1.5" material="weight_black"/>
+		</body>
+
+		
+
+		<light directional="true" ambient="0.2 0.2 0.2" diffuse="0.8 0.8 0.8" specular="0.3 0.3 0.3" castshadow="false" pos="0 0 4" dir="0 0 -1" name="light0"></light>
+	</worldbody>
+
+</mujoco>

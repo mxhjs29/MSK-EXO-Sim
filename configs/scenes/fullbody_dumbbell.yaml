@@ -1,0 +1,12 @@
+scene_id: fullbody_dumbbell
+entities:
+- entity_id: human
+  kind: msk
+  model_key: myofullbody
+- entity_id: load
+  kind: object
+  model_key: dumbbell
+  parameters:
+    payload_mass_kg: 2.0
+terrain:
+  terrain: flat

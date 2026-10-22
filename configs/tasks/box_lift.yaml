@@ -1,0 +1,3 @@
+goal_type: BoxRefinementGoal
+reward_type: BoxPoseRefinementReward
+terminal_state_type: BoxRefinementTerminal

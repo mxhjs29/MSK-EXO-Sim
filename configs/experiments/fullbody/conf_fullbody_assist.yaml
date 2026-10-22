@@ -1,0 +1,20 @@
+defaults:
+  - conf_fullbody
+  - _self_
+
+wandb:
+  tags: ["fullbody", "assist", "single-agent"]
+
+experiment:
+  env_params:
+    env_name: MjxMyoFullBodyAssistEnv
+    msk_key: myofullbody
+    device_key: HipExoskeleton_L1  # Set to null for MSK + terrain.
+    terrain:
+      terrain: flat
+    # GTX 1650 + HipExoskeleton flat smoke-test values. Increase with terrain/contact complexity.
+    nconmax: 256
+    njmax: 1024
+    include_robot_observations: false
+    device_control_mode: zero
+    device_control_value: 0.0

@@ -1,0 +1,138 @@
+"""Command-line interface for assist_sim.
+
+    python -m assist_sim list                      # show discoverable combinations
+    python -m assist_sim validate MSK DEVICE       # check a pair resolves
+    python -m assist_sim combine MSK DEVICE [-o OUT.xml] [--cache-dir DIR]
+    python -m assist_sim msk MSK [-o OUT.xml] [--cache-dir DIR]   # no device
+
+Also available as the ``assist-sim`` script after install.
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+from . import (
+    __version__,
+    get_available_combinations,
+    load_combined,
+    load_msk,
+    resolve_model_path,
+    validate_combination,
+)
+
+
+def _cmd_list(_: argparse.Namespace) -> int:
+    from .registry import DEVICE_CONFIGS, _COMPATIBLE_MSK_KEYS, _DEVICE_ERRORS, _msk_available
+
+    combos = get_available_combinations()
+    if combos:
+        for msk_key, devices in combos.items():
+            print(f"{msk_key}:")
+            for device in devices:
+                print(f"    - {device}")
+        # Devices whose config failed to parse are omitted from the lists above rather
+        # than shown as usable, so name them here -- otherwise a broken config just
+        # disappears from the listing with no explanation.
+        if _DEVICE_ERRORS:
+            print()
+            print("Devices skipped (unreadable config):")
+            for key, exc in sorted(_DEVICE_ERRORS.items()):
+                print(f"    - {key}: {type(exc).__name__}: {exc}")
+        return 0
+
+    # No MSKs buildable -- either myo_sim isn't installed or every MSK is gated
+    # on this environment.  Report per-key status so the user can tell why.
+    print("No MSK x device combinations buildable in this environment.")
+    print()
+    print("  MSK keys (curated):")
+    for key in sorted(_COMPATIBLE_MSK_KEYS):
+        src = _COMPATIBLE_MSK_KEYS[key]
+        if _msk_available(key):
+            status = "available"
+        elif src.myo_sim_model is None:
+            status = f"planned ({src.note})"
+        else:
+            status = f"gated ({src.note})"
+        print(f"    - {key}: {status}")
+    print(f"  Device configs discovered:     {sorted(DEVICE_CONFIGS)}")
+    print()
+    print("Install myo_sim (pip install myo_sim, or a git+http URL until the")
+    print("PyPI wheel ships) to enable MSK resolution.")
+    return 0
+
+
+def _cmd_validate(args: argparse.Namespace) -> int:
+    ok = validate_combination(args.msk, args.device)
+    if ok:
+        human_spec, config = resolve_model_path(args.msk, args.device)
+        print(f"OK: {args.msk} x {args.device}")
+        # The human model is a live MjSpec composed in memory, never a path --
+        # report what it is rather than printing an object repr.
+        print(f"    human:  {args.msk} (composed MjSpec, {len(human_spec.bodies)} bodies)")
+        print(f"    config: {config}")
+        return 0
+    print(f"INVALID: {args.msk} x {args.device}", file=sys.stderr)
+    return 1
+
+
+def _cmd_combine(args: argparse.Namespace) -> int:
+    model, _ = load_combined(
+        args.msk,
+        args.device,
+        export_xml=args.output,
+        cache_dir=args.cache_dir,
+    )
+    print(f"Combined {args.msk} x {args.device}: nq={model.nq} nu={model.nu} nbody={model.nbody} nmesh={model.nmesh}")
+    if args.output:
+        print(f"Exported to {Path(args.output).resolve()}")
+    return 0
+
+
+def _cmd_msk(args: argparse.Namespace) -> int:
+    model, _ = load_msk(args.msk, export_xml=args.output, cache_dir=args.cache_dir)
+    print(f"MSK {args.msk}: nq={model.nq} nu={model.nu} nbody={model.nbody} nmesh={model.nmesh}")
+    if args.output:
+        print(f"Exported to {Path(args.output).resolve()}")
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="assist-sim", description=__doc__)
+    parser.add_argument("--version", action="version", version=f"assist-sim {__version__}")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p_list = sub.add_parser("list", help="list discoverable combinations")
+    p_list.set_defaults(func=_cmd_list)
+
+    p_val = sub.add_parser("validate", help="check that a combination resolves")
+    p_val.add_argument("msk")
+    p_val.add_argument("device")
+    p_val.set_defaults(func=_cmd_validate)
+
+    p_comb = sub.add_parser("combine", help="combine and optionally export")
+    p_comb.add_argument("msk")
+    p_comb.add_argument("device")
+    p_comb.add_argument("-o", "--output", help="export the combined XML here")
+    p_comb.add_argument("--cache-dir", help="enable caching in this directory")
+    p_comb.set_defaults(func=_cmd_combine)
+
+    p_msk = sub.add_parser("msk", help="build a baseline MSK with no device")
+    p_msk.add_argument("msk")
+    p_msk.add_argument("-o", "--output", help="export the MSK-only XML here")
+    p_msk.add_argument("--cache-dir", help="enable caching in this directory")
+    p_msk.set_defaults(func=_cmd_msk)
+
+    return parser
+
+
+def main(argv=None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

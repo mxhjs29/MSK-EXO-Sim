@@ -1,0 +1,112 @@
+device:
+  name: "DephyExoBoot_L1"
+  model_xml: "L1model.xml"
+
+attachments:
+  # Pelvis
+  - device_body: "fanny_pack"
+    parent_body: "pelvis"
+  # Tibia R
+  - device_body: "exo_1_r"
+    parent_body: "tibia_r"
+  - device_body: "tb_shank_r"
+    parent_body: "tibia_r"
+  # Calcn R
+  - device_body: "tb_mid_r"
+    parent_body: "calcn_r"
+  - device_body: "exo_2_r"
+    parent_body: "calcn_r"
+  # Toes R
+  - device_body: "tb_toe_r"
+    parent_body: "toes_r"
+  # Tibia L
+  - device_body: "exo_1_l"
+    parent_body: "tibia_l"
+  - device_body: "tb_shank_l"
+    parent_body: "tibia_l"
+  # Calcn L
+  - device_body: "tb_mid_l"
+    parent_body: "calcn_l"
+  - device_body: "exo_2_l"
+    parent_body: "calcn_l"
+  # Toes L
+  - device_body: "tb_toe_l"
+    parent_body: "toes_l"
+
+joint_overrides:
+  - name: "ankle_angle_r"
+    range: [-0.45, 0.349]
+    damping: 0.5
+  - name: "mtp_angle_r"
+    range: [-0.0145, 0.2]
+    damping: 0.5
+  - name: "ankle_angle_l"
+    range: [-0.45, 0.349]
+    damping: 0.5
+  - name: "mtp_angle_l"
+    range: [-0.0145, 0.2]
+    damping: 0.5
+
+actuators:
+  - name: "Exo_R"
+    type: "general"
+    joint: "ankle_angle_r"
+    gaintype: "fixed"
+    gainprm: [100, 0, 0]
+    biastype: "none"
+    biasprm: [0, 0, 0]
+    dyntype: "none"
+    dynprm: [1, 0, 0]
+    ctrlrange: [-1, 0]
+    ctrllimited: true
+    gear: [1.0]
+  - name: "Exo_L"
+    type: "general"
+    joint: "ankle_angle_l"
+    gaintype: "fixed"
+    gainprm: [100, 0, 0]
+    biastype: "none"
+    biasprm: [0, 0, 0]
+    dyntype: "none"
+    dynprm: [1, 0, 0]
+    ctrlrange: [-1, 0]
+    ctrllimited: true
+    gear: [1.0]
+
+# --- Re-point the foot GRF sensors onto the boot outsole ---
+# The boot outsole (tb_mid / tb_toe) is the ground interface, not the bare
+# calcn/toes, so the baseline touch sensors read zero.  Drop them and re-declare
+# against the device outsole sites (r_sole_touch / r_forefoot_touch in
+# L1model.xml).  Same treatment as the Humotech / Anatomics / STRIDE shoes.
+sensor_removals:
+  - "r_foot"
+  - "r_toes"
+  - "l_foot"
+  - "l_toes"
+
+sensors:
+  - {name: "r_foot", type: touch, site: "r_sole_touch"}
+  - {name: "r_toes", type: touch, site: "r_forefoot_touch"}
+  - {name: "l_foot", type: touch, site: "l_sole_touch"}
+  - {name: "l_toes", type: touch, site: "l_forefoot_touch"}
+
+# The boot's toe box is effectively rigid, so joint_overrides above restricts
+# mtp_angle_{r,l} to [-0.0145, 0.2].  The MSK poses were authored for a bare foot and
+# ask the right toe for more than that (walk_right -0.0737, squat and lunge +0.349), so
+# clamp those three to the travel the boot actually allows -- the same pattern Humotech
+# and STRIDE use for their shoes.  mtp_angle_l is already inside the range in every pose
+# (0 / 0 / 0 / 0.125 / 0.06) and needs no clamp.
+keyframe_overrides:
+  stand:
+    pelvis_ty: 0.96
+  walk_left:
+    pelvis_ty: 0.93285
+  walk_right:
+    pelvis_ty: 0.93285
+    mtp_angle_r: -0.0145
+  squat:
+    pelvis_ty: 0.77
+    mtp_angle_r: 0.2
+  lunge:
+    pelvis_ty: 0.72
+    mtp_angle_r: 0.2

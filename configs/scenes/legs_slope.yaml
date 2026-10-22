@@ -1,0 +1,8 @@
+scene_id: legs_slope
+entities:
+- entity_id: human
+  kind: msk
+  model_key: myolegs26
+terrain:
+  terrain: slope
+  deg: 5

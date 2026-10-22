@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "myoassist-terrains"
+version = "1.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "mujoco>=3.3.3",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "Pillow>=9.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["myoassist_terrains*"]
+
+[tool.setuptools.package-data]
+myoassist_terrains = ["assets/warehouse/*.xml", "assets/warehouse/textures/*.png"]

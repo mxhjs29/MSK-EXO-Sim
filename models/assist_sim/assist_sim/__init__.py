@@ -1,0 +1,140 @@
+"""assist_sim — programmatic combination of musculoskeletal models with assistive devices.
+
+Provides a single function to programmatically combine a musculoskeletal
+baseline model (sourced from the ``myo_sim`` package) with a device model
+defined locally under ``models/``, using the MuJoCo mjSpec API.
+
+Usage (by registry key -- the MSK is composed on demand by myo_sim)::
+
+    from assist_sim import load_combined
+
+    model, data = load_combined("myolegs26", "DephyExoBoot_L1")
+
+Or from explicit paths, if you already have a baseline MSK XML on disk::
+
+    from assist_sim import load_combined_model
+
+    model, data = load_combined_model(
+        human_xml="path/to/myolegs26.xml",
+        device_config="assist_sim/models/DephyExoBoot/L1config.yaml",
+    )
+"""
+
+import shutil
+from importlib.metadata import PackageNotFoundError, version
+from pathlib import Path
+from typing import Optional, Tuple, Union
+
+import mujoco as mj
+
+from .combine import ModelCombiner  # noqa: F401  (accessible, not re-exported)
+from .config import DeviceConfig
+from .loading import (  # noqa: F401
+    get_available_combinations,
+    load_combined,
+    load_msk,
+    resolve_model_path,
+    validate_combination,
+)
+
+# Read from installed package metadata (pyproject.toml is the single source of
+# truth). The cache key includes this, so a release version bump also
+# invalidates stale cached XMLs.
+try:
+    __version__ = version("assist_sim")
+except PackageNotFoundError:
+    __version__ = "0.0.0+unknown"
+
+# Keep the public surface small: load_combined_model is the documented path.
+# ModelCombiner stays importable from assist_sim.combine for advanced callers
+# but is intentionally not part of the star-export surface.
+__all__ = [
+    "load_combined_model",
+    "DeviceConfig",
+    "load_combined",
+    "load_msk",
+    "resolve_model_path",
+    "get_available_combinations",
+    "validate_combination",
+]
+
+
+def load_combined_model(
+    human_xml: str,
+    device_config: str,
+    export_xml: Optional[str] = None,
+    msk_key: Optional[str] = None,
+    keep_temp: bool = False,
+    cache_dir: Optional[Union[str, Path]] = None,
+) -> Tuple[mj.MjModel, mj.MjData]:
+    """Combine a musculoskeletal model with a device and return the compiled result.
+
+    Loads the baseline model from an explicit XML path into an ``MjSpec`` and
+    runs the in-memory combination pipeline.  The baseline file is never
+    modified.  (For a registry key that myo_sim composes at runtime, use
+    :func:`load_combined`, which hands the pipeline a spec directly.)
+
+    Args:
+        human_xml: Path to the baseline musculoskeletal model XML.
+        device_config: Path to the device's config.yaml file (under ``models/``).
+        export_xml: Optional path to save the combined model as XML.
+        msk_key: Optional MSK key for per-MSK config overrides.
+        keep_temp: If True, leave the device temp files on disk.
+        cache_dir: Optional directory enabling local caching. When set, a
+            combined model whose inputs are unchanged is loaded from disk
+            instead of recompiled. Off by default.
+
+    Returns:
+        Tuple of (MjModel, MjData) ready for simulation.
+    """
+    config = DeviceConfig.from_yaml(device_config)
+    human_path = str(Path(human_xml).resolve())
+
+    if cache_dir is not None:
+        from . import cache as _cache
+        from .loading import _assist_sim_token
+
+        cache_dir = Path(cache_dir)
+        paths = _cache.input_paths(human_xml, device_config, str(config.model_xml_path))
+        # Token, not bare __version__: an editable install keeps one version across every
+        # local edit, so a version-only key serves models built by an older pipeline.
+        key = _cache.compute_key(paths, _assist_sim_token(), msk_key)
+
+        hit = _cache.try_load(cache_dir, key)
+        if hit is not None:
+            if export_xml:
+                shutil.copyfile(_cache.cached_xml_path(cache_dir, key), export_xml)
+            return hit
+
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        staged = _cache.staging_xml_path(cache_dir, key)
+        model, data = ModelCombiner().combine(
+            mj.MjSpec.from_file(human_path),
+            config,
+            export_xml=str(staged),
+            msk_key=msk_key,
+            keep_temp=keep_temp,
+        )
+        cached_xml = str(_cache.commit(cache_dir, key, staged))
+        _cache.write_meta(
+            cache_dir,
+            key,
+            {
+                "assist_sim": _assist_sim_token(),
+                "human_xml": human_path,
+                "device_config": str(Path(device_config).resolve()),
+                "msk_key": msk_key,
+                "inputs": [str(p) for p in paths],
+            },
+        )
+        if export_xml and export_xml != cached_xml:
+            shutil.copyfile(cached_xml, export_xml)
+        return model, data
+
+    return ModelCombiner().combine(
+        mj.MjSpec.from_file(human_path),
+        config,
+        export_xml=export_xml,
+        msk_key=msk_key,
+        keep_temp=keep_temp,
+    )

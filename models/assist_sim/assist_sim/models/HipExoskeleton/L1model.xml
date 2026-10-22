@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<mujoco model="HipExoskeleton">
+  <compiler angle="radian" meshdir="."/>
+  <default>
+    <default class="exo_visual">
+      <geom type="mesh" contype="0" conaffinity="0" group="1"/>
+    </default>
+    <default class="exo_collision">
+      <geom type="mesh" contype="1" conaffinity="1" condim="3" group="4" rgba="0.3 0.3 0.3 0.15"/>
+    </default>
+    <default class="exo_hip">
+      <joint type="hinge" limited="true" damping="0.223" armature="0.01"/>
+    </default>
+  </default>
+  <asset>
+    <material name="exo_green" rgba="0 1 0 1"/>
+    <material name="exo_black" rgba="0 0 0 1"/>
+    <material name="exo_red" rgba="1 0 0 1"/>
+    <mesh name="exo_torso_mesh" file="meshes/sim_torso_prt_mj.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="exo_right_leg_mesh" file="meshes/sim_rightleg_prt_mj.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="exo_left_leg_mesh" file="meshes/sim_leftleg_prt_mj.stl" scale="0.001 0.001 0.001"/>
+  </asset>
+  <worldbody>
+    <!-- The torso support is attached to pelvis by the device config. -->
+    <include file="assets/exoskeleton_chain.xml"/>
+  </worldbody>
+</mujoco>

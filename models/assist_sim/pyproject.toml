@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "assist_sim"
+version = "1.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "mujoco>=3.4,<3.12",
+    "PyYAML>=6.0.2",
+    "numpy>=1.24",
+    "myo-sim>=0.2.1",
+]
+
+[tool.setuptools.packages.find]
+include = ["assist_sim*"]
+
+[tool.setuptools.package-data]
+assist_sim = ["models/**/*"]

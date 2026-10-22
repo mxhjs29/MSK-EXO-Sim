@@ -1,0 +1,9 @@
+# Add real GitHub users/teams once contributor responsibilities are agreed.
+# Keep changes to ownership in a dedicated reviewed PR.
+# /models/myo_sim/       @YOUR_ORG/msk-maintainers
+# /models/assist_sim/    @YOUR_ORG/device-maintainers
+# /models/myoassist_terrains/ @YOUR_ORG/simulation-maintainers
+# /musclemimic/scenes/   @YOUR_ORG/simulation-maintainers
+# /musclemimic/rewards/  @YOUR_ORG/task-maintainers
+# /musclemimic/algorithms/ @YOUR_ORG/learning-maintainers
+# /tests/               @YOUR_ORG/maintainers

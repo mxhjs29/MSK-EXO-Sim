@@ -1,0 +1,567 @@
+<mujoco>
+    <body name="fullshelf0" pos="-0.4 0 0">
+    <body name="shelf0" pos="0 20 0">
+	<body pos="0 0 0">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="shelf_column_black" mass="0.02" rgba="0.015 0.015 0.015 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="shelf_column_black" mass="0.02" rgba="0.015 0.015 0.015 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="shelf_column_black" mass="0.02" rgba="0.015 0.015 0.015 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="shelf_column_black" mass="0.02" rgba="0.015 0.015 0.015 1"></geom>
+    
+    </body>
+    <body pos="0 0 0.4">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="shelf_column_black" mass="0.02" rgba="0.015 0.015 0.015 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="shelf_column_black" mass="0.02" rgba="0.015 0.015 0.015 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="shelf_column_black" mass="0.02" rgba="0.015 0.015 0.015 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="shelf_column_black" mass="0.02" rgba="0.015 0.015 0.015 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton1" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+    
+    </body>
+    <body pos="0 0 0.8">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="shelf_column_black" mass="0.02" rgba="0.015 0.015 0.015 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="shelf_column_black" mass="0.02" rgba="0.015 0.015 0.015 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="shelf_column_black" mass="0.02" rgba="0.015 0.015 0.015 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="shelf_column_black" mass="0.02" rgba="0.015 0.015 0.015 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton5" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+    
+    </body>
+</body>
+
+<body name="shelf1" pos="-4.8 20 0">
+    <body pos="0 0 0">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+    
+    </body>
+    <body pos="0 0 0.4">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton1" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton5" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+    <body pos="0 0 0.8">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+</body>
+<body name="shelf2" pos="-4.8 24 0">
+    <body pos="0 0 0">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+    
+    </body>
+    <body pos="0 0 0.4">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+    <body pos="0 0 0.8">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+</body>
+<body name="shelf5" pos="4.8 20 0">
+    <body pos="0 0 0">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+    
+    </body>
+    <body pos="0 0 0.4">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+    <body pos="0 0 0.8">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+</body>
+
+<body name="shelf6" pos="9.6 20 0">
+    <body pos="0 0 0">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+    
+    </body>
+    <body pos="0 0 0.4">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+    <body pos="0 0 0.8">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+</body>
+<body name="shelf7" pos="9.6 24 0">
+    <body pos="0 0 0">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+    
+    </body>
+    <body pos="0 0 0.4">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+    <body pos="0 0 0.8">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+</body>
+<body name="shelf3" pos="-3.2 26.4 0" quat="1 0 0 1">
+    <body pos="0 0 0">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+    
+    </body>
+    <body pos="0 0 0.4">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+    <body pos="0 0 0.8">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+</body>
+<body name="shelf4" pos="0.8 26.4 0" quat="1 0 0 1">
+    <body pos="0 0 0">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+    
+    </body>
+    <body pos="0 0 0.4">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+    <body pos="0 0 0.8">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+</body>
+    <body name="shelf8" pos="4.8 26.4 0" quat="1 0 0 1">
+    <body pos="0 0 0">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+    
+    </body>
+    <body pos="0 0 0.4">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+    <body pos="0 0 0.8">
+        <geom pos = "0 0 0.4" size="0.4 2.0 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.975 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+</body>
+<body name="shelf9" pos="8.4 26.4 0" quat="1 0 0 1">
+    <body pos="0 0 0">
+        <geom pos = "0 0 0.4" size="0.4 1.6 0.01" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.575 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.575 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.575 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.575 0.2" size="0.025 0.025 0.2" type="box" condim="3"  material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+    
+    </body>
+    <body pos="0 0 0.4">
+        <geom pos = "0 0 0.4" size="0.4 1.6 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.575 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.575 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.575 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.575 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+    <body pos="0 0 0.8">
+        <geom pos = "0 0 0.4" size="0.4 1.6 0.01" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 1.575 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 1.575 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "0.375 -1.575 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+        <geom pos = "-0.375 -1.575 0.2" size="0.025 0.025 0.2" type="box" condim="3" material="block_mat" mass="0.02" rgba="0.5 0.5 0 1"></geom>
+	<geom pos = "0 0 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 -1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+	<geom pos = "0 1 0.15" size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="0" contype="0" conaffinity="0" rgba="0 0 0 0"></geom>
+      
+    </body>
+</body>
+</body>
+
+    <body name="shelf_box_00" pos="-0.4 20 0.55">
+        <joint name="shelf_box_00:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton" mass="5"></geom>
+    </body>
+    <body name="shelf_box_01" pos="-0.4 19 0.55">
+        <joint name="shelf_box_01:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton1" mass="5"></geom>
+    </body>
+    <body name="shelf_box_02" pos="-0.4 21 0.55">
+        <joint name="shelf_box_02:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_03" pos="-0.4 20 0.9500000000000001">
+        <joint name="shelf_box_03:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_04" pos="-0.4 19 0.9500000000000001">
+        <joint name="shelf_box_04:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_05" pos="-0.4 21 0.9500000000000001">
+        <joint name="shelf_box_05:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton5" mass="5"></geom>
+    </body>
+    <body name="shelf_box_06" pos="-5.2 20 0.55">
+        <joint name="shelf_box_06:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_07" pos="-5.2 19 0.55">
+        <joint name="shelf_box_07:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton1" mass="5"></geom>
+    </body>
+    <body name="shelf_box_08" pos="-5.2 21 0.55">
+        <joint name="shelf_box_08:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton5" mass="5"></geom>
+    </body>
+    <body name="shelf_box_09" pos="-5.2 20 0.9500000000000001">
+        <joint name="shelf_box_09:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_10" pos="-5.2 19 0.9500000000000001">
+        <joint name="shelf_box_10:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_11" pos="-5.2 21 0.9500000000000001">
+        <joint name="shelf_box_11:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_12" pos="-5.2 24 0.55">
+        <joint name="shelf_box_12:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_13" pos="-5.2 23 0.55">
+        <joint name="shelf_box_13:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_14" pos="-5.2 25 0.55">
+        <joint name="shelf_box_14:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_15" pos="-5.2 24 0.9500000000000001">
+        <joint name="shelf_box_15:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_16" pos="-5.2 23 0.9500000000000001">
+        <joint name="shelf_box_16:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_17" pos="-5.2 25 0.9500000000000001">
+        <joint name="shelf_box_17:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_18" pos="4.3999999999999995 20 0.55">
+        <joint name="shelf_box_18:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_19" pos="4.3999999999999995 19 0.55">
+        <joint name="shelf_box_19:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_20" pos="4.3999999999999995 21 0.55">
+        <joint name="shelf_box_20:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_21" pos="4.3999999999999995 20 0.9500000000000001">
+        <joint name="shelf_box_21:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_22" pos="4.3999999999999995 19 0.9500000000000001">
+        <joint name="shelf_box_22:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_23" pos="4.3999999999999995 21 0.9500000000000001">
+        <joint name="shelf_box_23:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_24" pos="9.2 20 0.55">
+        <joint name="shelf_box_24:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_25" pos="9.2 19 0.55">
+        <joint name="shelf_box_25:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_26" pos="9.2 21 0.55">
+        <joint name="shelf_box_26:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_27" pos="9.2 20 0.9500000000000001">
+        <joint name="shelf_box_27:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_28" pos="9.2 19 0.9500000000000001">
+        <joint name="shelf_box_28:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_29" pos="9.2 21 0.9500000000000001">
+        <joint name="shelf_box_29:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_30" pos="9.2 24 0.55">
+        <joint name="shelf_box_30:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_31" pos="9.2 23 0.55">
+        <joint name="shelf_box_31:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_32" pos="9.2 25 0.55">
+        <joint name="shelf_box_32:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_33" pos="9.2 24 0.9500000000000001">
+        <joint name="shelf_box_33:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_34" pos="9.2 23 0.9500000000000001">
+        <joint name="shelf_box_34:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_35" pos="9.2 25 0.9500000000000001">
+        <joint name="shelf_box_35:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_36" pos="-3.6 26.4 0.55">
+        <joint name="shelf_box_36:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_37" pos="-2.6 26.4 0.55">
+        <joint name="shelf_box_37:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_38" pos="-4.6 26.4 0.55">
+        <joint name="shelf_box_38:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_39" pos="-3.6 26.4 0.9500000000000001">
+        <joint name="shelf_box_39:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_40" pos="-2.6 26.4 0.9500000000000001">
+        <joint name="shelf_box_40:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_41" pos="-4.6 26.4 0.9500000000000001">
+        <joint name="shelf_box_41:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_42" pos="0.4 26.4 0.55">
+        <joint name="shelf_box_42:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_43" pos="1.4 26.4 0.55">
+        <joint name="shelf_box_43:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_44" pos="-0.6 26.4 0.55">
+        <joint name="shelf_box_44:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_45" pos="0.4 26.4 0.9500000000000001">
+        <joint name="shelf_box_45:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_46" pos="1.4 26.4 0.9500000000000001">
+        <joint name="shelf_box_46:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_47" pos="-0.6 26.4 0.9500000000000001">
+        <joint name="shelf_box_47:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_48" pos="4.3999999999999995 26.4 0.55">
+        <joint name="shelf_box_48:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_49" pos="5.3999999999999995 26.4 0.55">
+        <joint name="shelf_box_49:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_50" pos="3.3999999999999995 26.4 0.55">
+        <joint name="shelf_box_50:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_51" pos="4.3999999999999995 26.4 0.9500000000000001">
+        <joint name="shelf_box_51:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_52" pos="5.3999999999999995 26.4 0.9500000000000001">
+        <joint name="shelf_box_52:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_53" pos="3.3999999999999995 26.4 0.9500000000000001">
+        <joint name="shelf_box_53:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_54" pos="8 26.4 0.55">
+        <joint name="shelf_box_54:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_55" pos="9 26.4 0.55">
+        <joint name="shelf_box_55:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_56" pos="7 26.4 0.55">
+        <joint name="shelf_box_56:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+    <body name="shelf_box_57" pos="8 26.4 0.9500000000000001">
+        <joint name="shelf_box_57:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton3" mass="5"></geom>
+    </body>
+    <body name="shelf_box_58" pos="9 26.4 0.9500000000000001">
+        <joint name="shelf_box_58:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton4" mass="5"></geom>
+    </body>
+    <body name="shelf_box_59" pos="7 26.4 0.9500000000000001">
+        <joint name="shelf_box_59:joint" type="free" damping="0.01"></joint>
+        <geom size="0.25 0.25 0.15" type="box" condim="3" material="carton2" mass="5"></geom>
+    </body>
+</mujoco>
